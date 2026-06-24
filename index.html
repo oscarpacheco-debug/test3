@@ -8,588 +8,922 @@
 <meta name="apple-mobile-web-app-title" content="Mi Tripa">
 <title>Mi Tripa</title>
 <style>
-  :root {
-    --teal: #0FC4B2;
-    --teal-bg: #E1F5EE;
-    --amber: #F59E0B;
-    --amber-bg: #FEF3C7;
-    --red: #E55A4E;
-    --red-bg: #FEE2E0;
-    --green: #16A34A;
-    --green-bg: #DCFCE7;
-    --text: #1a1a1a;
-    --text-muted: #6b7280;
-    --text-light: #9ca3af;
-    --bg: #ffffff;
-    --bg-soft: #f9fafb;
-    --bg-card: #ffffff;
-    --border: #e5e7eb;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --tab-h: 64px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; background: var(--bg-soft); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; color: var(--text); }
-  
-  /* LAYOUT */
-  #app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; background: var(--bg-soft); position: relative; }
-  #content { flex: 1; overflow-y: auto; padding-bottom: calc(var(--tab-h) + 8px); }
-  
-  /* TABS */
-  #tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: var(--tab-h); background: var(--bg); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
-  .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: none; background: none; cursor: pointer; color: var(--text-light); font-size: 10px; font-weight: 500; padding: 8px 0 4px; transition: color .15s; }
-  .tab-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
-  .tab-btn.active { color: var(--teal); }
-  
-  /* PANELS */
-  .panel { display: none; padding: 20px 16px; }
-  .panel.active { display: block; }
-  
-  /* TYPOGRAPHY */
-  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
-  .title { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.2; }
-  .subtitle { font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-top: 4px; }
-  
-  /* STATUS CARDS — main entry */
-  .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
-  .status-card { background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius); padding: 16px 14px; cursor: pointer; transition: border-color .15s, background .15s; user-select: none; text-align: left; }
-  .status-card.selected { border-color: var(--accent, var(--teal)); background: var(--accent-bg, var(--teal-bg)); }
-  .status-card.selected .s-name { color: var(--accent, var(--teal)); }
-  .s-icon { font-size: 26px; margin-bottom: 8px; display: block; }
-  .s-name { font-size: 14px; font-weight: 600; color: var(--text); }
-  .s-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
-  
-  /* PROTOCOL */
-  .protocol-card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); margin-top: 16px; overflow: hidden; }
-  .protocol-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); }
-  .protocol-label { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; }
-  .proto-items { padding: 4px 0; }
-  .proto-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 13.5px; line-height: 1.45; color: var(--text); }
-  .proto-item:last-child { border-bottom: none; }
-  .proto-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-  
-  /* SEMÁFORO ANAL */
-  .semaforo { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); margin-top: 16px; padding: 16px; display: flex; align-items: center; gap: 14px; }
-  .semaforo-dot { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-  .semaforo-text .sema-label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 3px; }
-  .semaforo-text .sema-status { font-size: 15px; font-weight: 600; }
-  .semaforo-text .sema-note { font-size: 12px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
-  
-  /* RECETAS */
-  .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: none; }
-  .filter-bar::-webkit-scrollbar { display: none; }
-  .filter-pill { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--bg-card); font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: all .12s; }
-  .filter-pill.active { background: var(--teal); border-color: var(--teal); color: white; }
-  .recipe-list { display: flex; flex-direction: column; gap: 10px; }
-  .recipe-card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; cursor: pointer; }
-  .recipe-card-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
-  .recipe-meal-badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; flex-shrink: 0; }
-  .recipe-name { font-size: 14px; font-weight: 600; flex: 1; }
-  .recipe-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-  .recipe-detail { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border); margin-top: 2px; }
-  .recipe-detail.open { display: block; }
-  .recipe-detail-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-light); margin: 10px 0 5px; }
-  .recipe-detail p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-  .recipe-ok { font-size: 11px; }
-  
-  /* TRACKER */
-  .tracker-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 16px 0; }
-  .day-cell { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 10px; padding: 8px 4px; text-align: center; cursor: pointer; transition: all .12s; user-select: none; }
-  .day-cell.state-optimo { border-color: var(--green); background: var(--green-bg); }
-  .day-cell.state-gases { border-color: var(--amber); background: var(--amber-bg); }
-  .day-cell.state-blando { border-color: #fb923c; background: #FFF7ED; }
-  .day-cell.state-bolitas { border-color: var(--red); background: var(--red-bg); }
-  .day-label { font-size: 10px; color: var(--text-light); font-weight: 600; margin-bottom: 4px; }
-  .day-emoji { font-size: 20px; line-height: 1; }
-  .day-name { font-size: 10px; margin-top: 3px; font-weight: 500; color: var(--text-muted); }
-  .tracker-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
-  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
-  .insight { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px 16px; margin-top: 4px; }
-  .insight p { font-size: 13.5px; color: var(--text); line-height: 1.6; }
-  
-  /* GUÍA */
-  .guide-section { margin-bottom: 20px; }
-  .guide-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
-  .guide-table { width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); font-size: 13px; }
-  .guide-table th { background: var(--bg-soft); padding: 9px 12px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-  .guide-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; line-height: 1.4; }
-  .guide-table tr:last-child td { border-bottom: none; }
-  .guide-table td:first-child { font-size: 18px; width: 36px; }
-  .tag-ok { background: var(--green-bg); color: #15803d; padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 600; }
-  .tag-no { background: var(--red-bg); color: #b91c1c; padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 600; }
-  .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .rule-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-size: 13px; color: var(--text); line-height: 1.45; }
-  .rule-card::before { content: '⚡'; margin-right: 5px; }
-  
-  /* EMPTY STATE */
-  .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-  .empty-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty p { font-size: 14px; line-height: 1.6; }
-  
-  /* VERANO BANNER */
-  .summer-banner { background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; }
-  .summer-banner p { font-size: 13px; color: #92400e; line-height: 1.5; }
-  
-  /* UTILS */
-  .mt8 { margin-top: 8px; }
-  .mt16 { margin-top: 16px; }
-  .divider { height: 1px; background: var(--border); margin: 16px 0; }
-  .no-selection { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; padding: 32px 16px; color: var(--text-muted); font-size: 14px; text-align: center; }
+:root{--teal:#0FC4B2;--teal-bg:#E1F5EE;--amber:#F59E0B;--amber-bg:#FEF3C7;--red:#E55A4E;--red-bg:#FEE2E0;--green:#16A34A;--green-bg:#DCFCE7;--text:#1a1a1a;--muted:#6b7280;--light:#9ca3af;--bg:#ffffff;--soft:#f9fafb;--card:#ffffff;--border:#e5e7eb;--radius:12px;--rsm:8px;--tab:64px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--soft);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:var(--text)}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto;background:var(--soft)}
+#content{flex:1;overflow-y:auto;padding-bottom:calc(var(--tab)+8px)}
+/* TABBAR */
+#tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:var(--tab);background:var(--bg);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.tb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;color:var(--light);font-size:10px;font-weight:500;padding:8px 0 4px;transition:color .15s}
+.tb svg{width:22px;height:22px;stroke-width:1.8}
+.tb.active{color:var(--teal)}
+/* PANELS */
+.panel{display:none;padding:20px 16px}
+.panel.active{display:block}
+/* TYPE */
+.ey{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--light);margin-bottom:6px}
+.ttl{font-size:22px;font-weight:700;line-height:1.2}
+.sub{font-size:14px;color:var(--muted);line-height:1.5;margin-top:4px}
+/* CARD */
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px}
+/* STATUS GRID */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.sc{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:16px 14px;cursor:pointer;transition:border-color .15s;user-select:none;text-align:left}
+.sc.sel{border-color:var(--ac,var(--teal));background:var(--ac-bg,var(--teal-bg))}
+.sc.sel .sn{color:var(--ac,var(--teal))}
+.si{font-size:26px;margin-bottom:8px;display:block}
+.sn{font-size:14px;font-weight:600}
+.sd{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+/* PROTOCOL */
+.proto-card{background:var(--card);border-radius:var(--radius);border:0.5px solid var(--border);margin-top:16px;overflow:hidden}
+.proto-hdr{padding:14px 16px 10px;border-bottom:0.5px solid var(--border)}
+.proto-lbl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+.proto-item{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:0.5px solid var(--border);font-size:13.5px;line-height:1.45}
+.proto-item:last-child{border-bottom:none}
+.pi-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+/* SEMÁFORO */
+.sema{background:var(--card);border-radius:var(--radius);border:0.5px solid var(--border);margin-top:16px;padding:16px;display:flex;align-items:center;gap:14px}
+.sema-dot{width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.sema-lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.sema-status{font-size:15px;font-weight:600}
+.sema-note{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+/* COMIDAS LOG */
+.meal-log-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.meal-slot{background:var(--card);border:1.5px solid var(--border);border-radius:var(--rsm);padding:10px 8px;text-align:center;cursor:pointer;transition:border-color .15s;user-select:none;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.meal-slot.filled{border-color:var(--teal);background:var(--teal-bg)}
+.meal-slot.bad{border-color:var(--red);background:var(--red-bg)}
+.meal-slot.ok{border-color:var(--green);background:var(--green-bg)}
+.meal-slot-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.meal-slot-content{font-size:12px;font-weight:500;color:var(--text);line-height:1.3;text-align:center}
+.meal-slot-empty{font-size:11px;color:var(--light)}
+.meal-impact{font-size:10px;margin-top:3px}
+/* IMPACT TAGS */
+.impact-verde{color:var(--green)}
+.impact-amarillo{color:var(--amber)}
+.impact-rojo{color:var(--red)}
+/* RECETAS */
+.filter-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.fpill{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .12s}
+.fpill.active{background:var(--teal);border-color:var(--teal);color:white}
+.recipe-list{display:flex;flex-direction:column;gap:10px}
+.recipe-card{background:var(--card);border-radius:var(--radius);border:0.5px solid var(--border);overflow:hidden;cursor:pointer}
+.rc-header{padding:14px 16px;display:flex;align-items:center;gap:12px}
+.rc-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;flex-shrink:0}
+.rc-name{font-size:14px;font-weight:600;flex:1}
+.rc-meta{font-size:12px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rc-detail{display:none;padding:0 16px 14px;border-top:0.5px solid var(--border);margin-top:2px}
+.rc-detail.open{display:block}
+.rc-dt{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--light);margin:10px 0 5px}
+.rc-detail p{font-size:13px;color:var(--muted);line-height:1.6}
+/* STAR RATING */
+.stars{display:flex;gap:2px}
+.star{font-size:13px}
+.star.full{color:#F59E0B}
+.star.empty{color:#d1d5db}
+/* DIGESTIBILITY BADGE */
+.dig-badge{font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px}
+/* TRACKER */
+.tracker-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:16px 0}
+.day-cell{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;cursor:pointer;transition:all .12s;user-select:none}
+.day-cell.s-optimo{border-color:var(--green);background:var(--green-bg)}
+.day-cell.s-gases{border-color:var(--amber);background:var(--amber-bg)}
+.day-cell.s-blando{border-color:#fb923c;background:#FFF7ED}
+.day-cell.s-bolitas{border-color:var(--red);background:var(--red-bg)}
+.day-cell.today-cell{box-shadow:0 0 0 2px var(--teal);}
+.dl{font-size:10px;color:var(--light);font-weight:600;margin-bottom:4px}
+.de{font-size:20px;line-height:1}
+.dn{font-size:10px;margin-top:3px;font-weight:500;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.leg-dot{width:10px;height:10px;border-radius:3px}
+.insight{background:var(--card);border-radius:var(--radius);border:0.5px solid var(--border);padding:14px 16px;margin-top:4px}
+.insight p{font-size:13.5px;color:var(--text);line-height:1.6}
+/* GUÍA */
+.g-section{margin-bottom:20px}
+.g-title{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.g-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--radius);overflow:hidden;border:0.5px solid var(--border);font-size:13px}
+.g-table th{background:var(--soft);padding:9px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:0.5px solid var(--border)}
+.g-table td{padding:10px 12px;border-bottom:0.5px solid var(--border);color:var(--text);vertical-align:top;line-height:1.4}
+.g-table tr:last-child td{border-bottom:none}
+.g-table td:first-child{font-size:18px;width:36px}
+.rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rule-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--rsm);padding:12px;font-size:13px;color:var(--text);line-height:1.45}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--bg);border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px;max-height:85dvh;overflow-y:auto}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:6px}
+.modal-sub{font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+.modal-opts{display:flex;flex-direction:column;gap:8px}
+.mopt{padding:13px 16px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--soft);font-size:14px;cursor:pointer;text-align:left;transition:border-color .12s;display:flex;align-items:flex-start;gap:10px}
+.mopt.sel{border-color:var(--teal);background:var(--teal-bg)}
+.mopt-icon{font-size:20px;flex-shrink:0}
+.mopt-name{font-size:13px;font-weight:600}
+.mopt-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.modal-btns{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.mbtn{padding:13px;border-radius:var(--radius);border:none;font-size:14px;font-weight:600;cursor:pointer}
+.mbtn.primary{background:var(--teal);color:white}
+.mbtn.neutral{background:var(--soft);color:var(--text);border:0.5px solid var(--border)}
+/* NO SELECTION */
+.no-sel{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:32px 16px;color:var(--muted);font-size:14px;text-align:center}
+.sec-ttl{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px}
+.mt10{margin-top:10px}
+.mt16{margin-top:16px}
+.alert{background:#EEEDFE;border-radius:var(--rsm);padding:10px 14px;font-size:13px;color:#3C3489;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
 <div id="app">
-  <div id="content">
-    <!-- HOY -->
-    <div class="panel active" id="panel-hoy">
-      <div class="eyebrow">Hoy</div>
-      <div class="title">¿Cómo está tu tripa?</div>
-      <div class="subtitle">Elige el estado más cercano al de hoy.</div>
-      <div class="status-grid" id="status-grid"></div>
-      <div id="protocol-area"></div>
-      <div id="semaforo-area"></div>
+<div id="content">
+
+<!-- HOY -->
+<div class="panel active" id="panel-hoy">
+  <div class="ey">Hoy</div>
+  <div class="ttl">¿Cómo está tu tripa?</div>
+  <div class="sub">Elige el estado de hoy para ver tu protocolo.</div>
+  <div class="sg" id="status-grid"></div>
+  <div id="protocol-area"></div>
+  <div id="semaforo-area"></div>
+</div>
+
+<!-- COMIDAS -->
+<div class="panel" id="panel-comidas">
+  <div class="ey">Comidas</div>
+  <div class="ttl">¿Qué has comido?</div>
+  <div class="sub">Marca a grosso modo cómo han sido tus comidas de hoy y ayer. El patrón importa más que la comida aislada.</div>
+  <div class="sec-ttl" id="today-date-label">Hoy</div>
+  <div class="meal-log-grid" id="today-meals"></div>
+  <div class="sec-ttl" id="yesterday-date-label">Ayer</div>
+  <div class="meal-log-grid" id="yesterday-meals"></div>
+  <div class="insight mt16" id="meal-insight"><p>Registra al menos una comida para ver el análisis.</p></div>
+</div>
+
+<!-- RECETAS -->
+<div class="panel" id="panel-recetas">
+  <div class="ey">Recetas</div>
+  <div class="ttl">¿Qué como hoy?</div>
+  <div class="sub mt10">Ordenadas por compatibilidad con tu estado actual.</div>
+  <div class="filter-bar mt16" id="meal-filter"></div>
+  <div class="recipe-list" id="recipe-list"></div>
+</div>
+
+<!-- TRACKER -->
+<div class="panel" id="panel-tracker">
+  <div class="ey">Tracker</div>
+  <div class="ttl">Últimos 7 días</div>
+  <div class="sub mt10">Tu intestino funciona por rachas. Toca cada día para registrar.</div>
+  <div class="tracker-grid mt16" id="tracker-grid"></div>
+  <div class="legend" id="tracker-legend"></div>
+  <div class="insight" id="tracker-insight"><p>Registra al menos 3 días para ver tu tendencia.</p></div>
+</div>
+
+<!-- GUÍA -->
+<div class="panel" id="panel-guia">
+  <div class="ey">Guía</div>
+  <div class="ttl">Reglas de bolsillo</div>
+  <div class="sub mt10">Lo esencial sin dieta.</div>
+
+  <div class="g-section">
+    <div class="g-title">🩺 Señales de alarma — cuándo ir al médico</div>
+    <table class="g-table">
+      <tr><th>Señal</th><th>Qué significa</th><th>Qué hacer</th></tr>
+      <tr><td style="font-size:16px">🔴</td><td style="font-size:13px"><strong>Sangre en las heces</strong><br>Roja brillante o negra</td><td style="font-size:13px">Médico esta semana. No esperar.</td></tr>
+      <tr><td style="font-size:16px">⚠️</td><td style="font-size:13px"><strong>Más de 7 días sin defecar</strong><br>Con protocolo activo</td><td style="font-size:13px">Médico. Puede necesitar laxante supervisado.</td></tr>
+      <tr><td style="font-size:16px">⚠️</td><td style="font-size:13px"><strong>Dolor abdominal fuerte</strong><br>No gas sino dolor real</td><td style="font-size:13px">Urgencias si es intenso. Médico si es recurrente.</td></tr>
+      <tr><td style="font-size:16px">⚠️</td><td style="font-size:13px"><strong>Pérdida de peso sin explicación</strong><br>Junto a cambio de hábito intestinal</td><td style="font-size:13px">Médico. Siempre investigar.</td></tr>
+      <tr><td style="font-size:16px">⚠️</td><td style="font-size:13px"><strong>Diarrea más de 5 días seguidos</strong><br>Sin mejora con reset</td><td style="font-size:13px">Médico. Riesgo de deshidratación.</td></tr>
+      <tr><td style="font-size:16px">ℹ️</td><td style="font-size:13px"><strong>Estreñimiento funcional recurrente</strong><br>Meses de bolitas sin solución</td><td style="font-size:13px">Médico para descartar causa orgánica. Probablemente SII.</td></tr>
+    </table>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">Los episodios de 2-4 días de bolitas o gases no son señales de alarma — son el patrón funcional que ya conoces. Las señales de arriba son las excepciones.</div>
+  </div>
+
+  <div class="g-section">
+    <div class="g-title">📊 Escala Bristol — identifica tu tipo</div>
+    <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      ${[
+        {num:1,emoji:'⚫⚫⚫',name:'Bolitas duras separadas',detail:'Como nueces. Muy estreñido.',color:'#DC2626',yours:false},
+        {num:2,emoji:'🌑🌑',name:'Salchicha de bolitas',detail:'Grumosa y dura. Estreñido.',color:'#EA580C',yours:false},
+        {num:3,emoji:'🥕',name:'Salchicha con grietas',detail:'Normal-bajo. Algo seco.',color:'#CA8A04',yours:false},
+        {num:4,emoji:'🍌',name:'Salchicha lisa y suave',detail:'Ideal. El objetivo.',color:'#16A34A',yours:true},
+        {num:5,emoji:'☁️',name:'Trozos blandos',detail:'Límite inferior normal.',color:'#0EA5E9',yours:false},
+        {num:6,emoji:'💧',name:'Esponjoso y deshilachado',detail:'Heces blandas. Diarrea leve.',color:'#7C3AED',yours:false},
+        {num:7,emoji:'🌊',name:'Líquido, sin sólidos',detail:'Diarrea. Atención.',color:'#BE185D',yours:false},
+      ].map(b=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:0.5px solid var(--border);${b.yours?'background:#DCFCE7':''}">
+          <div style="font-size:11px;font-weight:700;color:${b.color};width:16px;flex-shrink:0">${b.num}</div>
+          <div style="font-size:18px;flex-shrink:0">${b.emoji}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:var(--text)">${b.name}${b.yours?' <span style="font-size:10px;background:#DCFCE7;color:#16A34A;padding:1px 6px;border-radius:4px;font-weight:700">OBJETIVO</span>':''}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:1px">${b.detail}</div>
+          </div>
+          <div style="width:10px;height:10px;border-radius:50%;background:${b.color};flex-shrink:0"></div>
+        </div>`).join('')}
     </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">Bristol 3-4 es el rango óptimo. El 1-2 es lo que registras como "bolitas". El 5-6 es "heces blandas". El objetivo es vivir en el 4.</div>
+  </div>
 
-    <!-- RECETAS -->
-    <div class="panel" id="panel-recetas">
-      <div class="eyebrow">Recetas</div>
-      <div class="title">¿Qué como hoy?</div>
-      <div class="subtitle mt8">Filtradas por momento y compatibilidad con tu estado.</div>
-      <div class="filter-bar mt16" id="meal-filter"></div>
-      <div class="recipe-list" id="recipe-list"></div>
-    </div>
+  <div class="g-section">
+    <div class="g-title">💩 Según la caca de hoy</div>
+    <table class="g-table">
+      <tr><th></th><th>Estado</th><th>Come hoy</th><th>Evita</th></tr>
+      <tr><td>✅</td><td><strong>Normal</strong><br>Bristol 3-4</td><td>Lo que quieras. No experimentes.</td><td>Cambios bruscos innecesarios</td></tr>
+      <tr><td>🟡</td><td><strong>Bolitas</strong><br>Bristol 1-2</td><td>Agua en ayunas · Avena · AOVE · Aguacate</td><td>Pan seco · Mucha proteína sola · Poca grasa</td></tr>
+      <tr><td>🟠</td><td><strong>Blando</strong><br>Bristol 5-6</td><td>Arroz blanco · Pasta simple · Pollo · Sopa</td><td>Integral · Aguacate · Hummus · Fritos</td></tr>
+      <tr><td>💨</td><td><strong>Gases</strong></td><td>Comida caliente · Verdura cocida · Hinojo</td><td>Cerveza · Legumbres · Crucíferas · Lactosa+grasa</td></tr>
+    </table>
+  </div>
 
-    <!-- TRACKER -->
-    <div class="panel" id="panel-tracker">
-      <div class="eyebrow">Tracker</div>
-      <div class="title">Últimos 7 días</div>
-      <div class="subtitle mt8">Tu intestino funciona por rachas. Esto te da el patrón real.</div>
-      <div class="tracker-grid mt16" id="tracker-grid"></div>
-      <div class="tracker-legend" id="tracker-legend"></div>
-      <div class="insight" id="tracker-insight"><p>Registra al menos 3 días para ver tu tendencia.</p></div>
-    </div>
-
-    <!-- GUÍA -->
-    <div class="panel" id="panel-guia">
-      <div class="eyebrow">Guía rápida</div>
-      <div class="title">Reglas de bolsillo</div>
-      <div class="subtitle mt8">Lo esencial sin dieta.</div>
-      
-      <div class="guide-section mt16">
-        <div class="guide-title">💩 Según la caca de hoy</div>
-        <table class="guide-table">
-          <tr><th></th><th>Estado</th><th>Come hoy</th><th>Evita</th></tr>
-          <tr><td>✅</td><td><strong>Normal</strong><br>Bristol 3-4</td><td>Lo que quieras. No experimentes.</td><td>Cambios bruscos innecesarios</td></tr>
-          <tr><td>🟡</td><td><strong>Bolitas</strong><br>Bristol 1-2</td><td>Agua en ayunas · Avena · AOVE · Aguacate</td><td>Pan seco · Mucha proteína sola · Poca grasa</td></tr>
-          <tr><td>🟠</td><td><strong>Blando</strong><br>Bristol 5-6</td><td>Arroz blanco · Pasta simple · Pollo · Sopa</td><td>Integral · Aguacate grande · Hummus · Fritos</td></tr>
-          <tr><td>💨</td><td><strong>Gases</strong></td><td>Comida caliente · Verdura cocida · Hinojo</td><td>Cerveza · Legumbres · Crucíferas · Lactosa+grasa</td></tr>
-        </table>
-      </div>
-
-      <div class="guide-section">
-        <div class="guide-title">☀️ Verano: reglas extra</div>
-        <div class="rule-grid">
-          <div class="rule-card">+500ml agua al día sobre tu rutina normal</div>
-          <div class="rule-card">Mantén el desayuno aunque hayas cenado fuera</div>
-          <div class="rule-card">Máximo 2 días de excesos seguidos sin reset</div>
-          <div class="rule-card">Gases olorosos = señal. Actúa antes de que empeore</div>
-          <div class="rule-card">Reset de 24h: arroz + pollo + agua. Nada más.</div>
-          <div class="rule-card">El horario de ir al baño importa más que lo que comes</div>
-        </div>
-      </div>
-
-      <div class="guide-section">
-        <div class="guide-title">🍑 Preparación anal: lógica real</div>
-        <table class="guide-table">
-          <tr><th>Situación</th><th>Qué hacer</th></tr>
-          <tr><td colspan="2" style="font-size:13px;color:var(--text-muted);padding:10px 12px">La espontaneidad se construye en los 2 días anteriores, no el mismo día.</td></tr>
-          <tr><td style="font-size:13px;font-weight:600">La noche antes</td><td style="font-size:13px">Cena ligera sin legumbres, crucíferas ni picante. Proteína + carbohidrato simple.</td></tr>
-          <tr><td style="font-size:13px;font-weight:600">Mañana del día</td><td style="font-size:13px">Defeca normalmente. Espera 60-90 min. Ducha e higiene exterior — suficiente en Bristol 3-4.</td></tr>
-          <tr><td style="font-size:13px;font-weight:600">Si tienes gases hoy</td><td style="font-size:13px">Espera. No es derrota. 1 día de reset y estás en condiciones.</td></tr>
-          <tr><td style="font-size:13px;font-weight:600">Lavativa ocasional</td><td style="font-size:13px">150-200ml agua tibia, plan B solo si hay inseguridad. No como ritual habitual.</td></tr>
-        </table>
-      </div>
-
-      <div class="guide-section">
-        <div class="guide-title">⚡ Reglas rápidas</div>
-        <div class="rule-grid">
-          <div class="rule-card">Integral solo si el tránsito está bien</div>
-          <div class="rule-card">Si comes fuera → siguiente comida simple y caliente</div>
-          <div class="rule-card">Grasa + hidrato = intestino feliz</div>
-          <div class="rule-card">No picar sin proteína o grasa</div>
-          <div class="rule-card">Comida caliente ayuda más que fría</div>
-          <div class="rule-card">Después de entrenar: come siempre</div>
-        </div>
-      </div>
+  <div class="g-section">
+    <div class="g-title">☀️ Verano: reglas extra</div>
+    <div class="rule-grid">
+      <div class="rule-card">+500ml agua al día sobre tu rutina normal</div>
+      <div class="rule-card">Mantén el desayuno aunque hayas cenado fuera</div>
+      <div class="rule-card">Máximo 2 días de excesos seguidos sin reset</div>
+      <div class="rule-card">Gases olorosos = señal. Actúa antes de que empeore</div>
+      <div class="rule-card">Reset 24h: arroz + pollo + agua. Nada más.</div>
+      <div class="rule-card">El horario de ir al baño importa más que la comida</div>
     </div>
   </div>
 
-  <!-- TAB BAR -->
-  <div id="tabbar">
-    <button class="tab-btn active" onclick="switchTab('hoy', this)" id="tab-hoy">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-      Hoy
-    </button>
-    <button class="tab-btn" onclick="switchTab('recetas', this)" id="tab-recetas">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
-      Recetas
-    </button>
-    <button class="tab-btn" onclick="switchTab('tracker', this)" id="tab-tracker">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      Tracker
-    </button>
-    <button class="tab-btn" onclick="switchTab('guia', this)" id="tab-guia">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Guía
-    </button>
+  <div class="g-section">
+    <div class="g-title">🍑 Preparación anal</div>
+    <table class="g-table">
+      <tr><th>Situación</th><th>Qué hacer</th></tr>
+      <tr><td colspan="2" style="font-size:13px;color:var(--muted);padding:10px 12px">La espontaneidad se construye en los 2 días anteriores, no el mismo día.</td></tr>
+      <tr><td style="font-size:13px;font-weight:600">La noche antes</td><td style="font-size:13px">Cena ligera sin legumbres, crucíferas ni picante.</td></tr>
+      <tr><td style="font-size:13px;font-weight:600">Mañana del día</td><td style="font-size:13px">Defeca normalmente. Espera 60-90 min. Higiene exterior suficiente en Bristol 3-4.</td></tr>
+      <tr><td style="font-size:13px;font-weight:600">Si tienes gases hoy</td><td style="font-size:13px">Espera. 1 día de reset y el semáforo cambia.</td></tr>
+      <tr><td style="font-size:13px;font-weight:600">Lavativa ocasional</td><td style="font-size:13px">150-200ml agua tibia, plan B solo si hay inseguridad.</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- content -->
+
+<!-- TABBAR -->
+<div id="tabbar">
+  <button class="tb active" onclick="switchTab('hoy',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>Hoy
+  </button>
+  <button class="tb" onclick="switchTab('comidas',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>Comidas
+  </button>
+  <button class="tb" onclick="switchTab('recetas',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>Recetas
+  </button>
+  <button class="tb" onclick="switchTab('tracker',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Tracker
+  </button>
+  <button class="tb" onclick="switchTab('guia',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Guía
+  </button>
+</div>
+
+<!-- MODAL: elegir comida -->
+<div class="modal-bg" id="meal-modal">
+  <div class="modal">
+    <div class="modal-title" id="mm-title">¿Qué comiste?</div>
+    <div class="modal-sub" id="mm-sub">Elige la opción más cercana.</div>
+    <div class="modal-opts" id="mm-opts"></div>
+    <div class="modal-btns">
+      <button class="mbtn neutral" onclick="clearMealSlot()">Borrar</button>
+      <button class="mbtn neutral" onclick="hideModal('meal-modal')">Cancelar</button>
+    </div>
   </div>
 </div>
 
 <script>
-// ─── DATA ───────────────────────────────────────────────────────────────────
+// ─── DATA ─────────────────────────────────────────────────────────────────────
 
-const STATES = [
-  { key: 'optimo', icon: '😊', name: 'Todo bien', desc: 'Bristol 3-4, vaciado completo, pocos gases', accent: '#16A34A', accentBg: '#DCFCE7', score: 3 },
-  { key: 'gases', icon: '💨', name: 'Gases', desc: 'Muchos gases, pueden ser olorosos', accent: '#F59E0B', accentBg: '#FEF3C7', score: 1 },
-  { key: 'blando', icon: '🟠', name: 'Heces blandas', desc: 'Bristol 5-6, post-alcohol o excesos', accent: '#F97316', accentBg: '#FFF7ED', score: -1 },
-  { key: 'bolitas', icon: '🔴', name: 'Bolitas / duro', desc: 'Bristol 1-2, sensación incompleta', accent: '#E55A4E', accentBg: '#FEE2E0', score: -2 }
+const STATES=[
+  {key:'optimo',icon:'😊',name:'Todo bien',desc:'Bristol 3-4, vaciado completo, pocos gases',ac:'#16A34A',acBg:'#DCFCE7',score:3},
+  {key:'gases',icon:'💨',name:'Gases',desc:'Muchos gases, pueden ser olorosos',ac:'#F59E0B',acBg:'#FEF3C7',score:1},
+  {key:'blando',icon:'🟠',name:'Heces blandas',desc:'Bristol 5-6, post-alcohol o excesos',ac:'#F97316',acBg:'#FFF7ED',score:-1},
+  {key:'bolitas',icon:'🔴',name:'Bolitas / duro',desc:'Bristol 1-2, sensación incompleta',ac:'#E55A4E',acBg:'#FEE2E0',score:-2}
 ];
 
-const PROTOCOLS = {
-  optimo: {
-    label: 'Protocolo · Mantener estado óptimo',
-    items: [
-      { icon: '✅', text: 'Sigue con yogur griego + avena en el desayuno. No lo saltes.' },
-      { icon: '💧', text: 'Mínimo 2L de agua. En verano, 2.5L. Un vaso grande en ayunas antes de nada.' },
-      { icon: '🫒', text: 'Aceite de oliva en crudo en alguna comida — facilita el tránsito sin esfuerzo.' },
-      { icon: '🕐', text: 'Si tienes ganas de ir al baño, no lo pospongas. Respeta la señal.' },
-      { icon: '⚠️', text: 'Este estado se pierde con 2+ días de excesos seguidos. La regla de los 2 días.' }
-    ]
-  },
-  gases: {
-    label: 'Protocolo · Reducir gases (semáforo amarillo)',
-    items: [
-      { icon: '🚨', text: 'Los gases son tu señal temprana. Actúa hoy para que mañana las heces no empeoren.' },
-      { icon: '❌', text: 'Elimina hoy: legumbres, brócoli, coliflor, cebolla cruda, cerveza, refrescos con gas.' },
-      { icon: '🍵', text: 'Infusión de hinojo o menta después de comer. Reduce la fermentación activa.' },
-      { icon: '🍽️', text: 'Comidas más pequeñas, mastica despacio. El aire al comer rápido genera gases mecánicos.' },
-      { icon: '🥛', text: 'Mantén el yogur griego (probióticos). Si lo habías quitado, retómalo hoy.' }
-    ]
-  },
-  blando: {
-    label: 'Protocolo · Reset para heces blandas',
-    items: [
-      { icon: '🍚', text: '24-48h de comida simple: arroz blanco, pechuga, pasta, sopa de pollo. Sin picante, fritos ni alcohol.' },
-      { icon: '💧', text: 'Agua sola o infusiones suaves (manzanilla, hinojo). Nada con gas ni refrescos.' },
-      { icon: '☕', text: 'Sin café hasta que se normalice — estimula el peristaltismo cuando ya está acelerado.' },
-      { icon: 'ℹ️', text: 'Suele resolverse en 24h si no añades más excesos. Solo para el input dañino.' },
-      { icon: '📅', text: 'Si dura más de 3 días o hay dolor, visita al médico.' }
-    ]
-  },
-  bolitas: {
-    label: 'Protocolo · Soltar el estreñimiento',
-    items: [
-      { icon: '💧', text: 'Agua nada más levantarte: un vaso de 300ml en ayunas antes de todo. Es el gesto más efectivo.' },
-      { icon: '☕', text: 'Café solo en ayunas activa el reflejo gastrocólico. Agua caliente con limón si no tomas café.' },
-      { icon: '🫒', text: 'Aceite de oliva en crudo, aguacate y avena: tus 3 recursos para empujar el tránsito.' },
-      { icon: '🚶', text: 'Caminar 20-30 minutos activa el peristaltismo. Mejor después de comer.' },
-      { icon: '🕐', text: 'Siéntate en el baño 10-15 min por la mañana aunque no tengas ganas. Crea el reflejo.' },
-      { icon: '🍞', text: 'Reduce pan blanco refinado 2 días. Añade centeno o avena cocida.' }
-    ]
-  }
+const PROTOCOLS={
+  optimo:{label:'Protocolo · Mantener estado óptimo',items:[
+    {icon:'✅',text:'Sigue con yogur griego + avena en el desayuno. No lo saltes.'},
+    {icon:'💧',text:'Mínimo 2L de agua. En verano, 2.5L. Un vaso grande en ayunas antes de nada.'},
+    {icon:'🫒',text:'Aceite de oliva en crudo en alguna comida — facilita el tránsito sin esfuerzo.'},
+    {icon:'🕐',text:'Si tienes ganas de ir al baño, no lo pospongas. Respeta la señal.'},
+    {icon:'⚠️',text:'Este estado se pierde con 2+ días de excesos seguidos.'}
+  ]},
+  gases:{label:'Protocolo · Reducir gases (semáforo amarillo)',items:[
+    {icon:'🚨',text:'Los gases son tu señal temprana. Actúa hoy para que mañana las heces no empeoren.'},
+    {icon:'❌',text:'Elimina hoy: legumbres, brócoli, coliflor, cebolla cruda, cerveza, refrescos.'},
+    {icon:'🍵',text:'Infusión de hinojo o menta después de comer. Reduce la fermentación activa.'},
+    {icon:'🍽️',text:'Comidas más pequeñas, mastica despacio. El aire al comer rápido genera gases mecánicos.'},
+    {icon:'🥛',text:'Mantén el yogur griego (probióticos). Si lo habías quitado, retómalo hoy.'}
+  ]},
+  blando:{label:'Protocolo · Reset para heces blandas',items:[
+    {icon:'🍚',text:'24-48h de comida simple: arroz blanco, pechuga, pasta, sopa. Sin picante, fritos ni alcohol.'},
+    {icon:'💧',text:'Agua sola o infusiones suaves (manzanilla, hinojo). Nada con gas.'},
+    {icon:'☕',text:'Sin café hasta que se normalice — estimula el peristaltismo cuando ya está acelerado.'},
+    {icon:'ℹ️',text:'Suele resolverse en 24h si no añades más excesos. Solo para el input dañino.'},
+    {icon:'📅',text:'Si dura más de 3 días o hay dolor, visita al médico.'}
+  ]},
+  bolitas:{label:'Protocolo · Soltar el estreñimiento',items:[
+    {icon:'💧',text:'Agua nada más levantarte: un vaso de 300ml en ayunas antes de todo. Es el gesto más efectivo.'},
+    {icon:'☕',text:'Café solo en ayunas activa el reflejo gastrocólico. Agua caliente con limón si no tomas café.'},
+    {icon:'🫒',text:'Aceite de oliva en crudo, aguacate y avena: tus 3 recursos para empujar el tránsito.'},
+    {icon:'🚶',text:'Caminar 20-30 minutos activa el peristaltismo. Mejor después de comer.'},
+    {icon:'🕐',text:'Siéntate en el baño 10-15 min por la mañana aunque no tengas ganas. Crea el reflejo.'},
+    {icon:'🍞',text:'Reduce pan blanco refinado 2 días. Añade centeno o avena cocida.'}
+  ]}
 };
 
-const RECIPES = [
-  { id:1, meal:'Desayuno', name:'Yogur griego + avena + miel + arándanos', time:'5 min', rating:'★★★★★', ok:['optimo','gases','bolitas'], ingredients:'Yogur griego · 3 cdas copos avena · miel · arándanos · nueces', steps:'Mezclar todo en bol.', note:'Desayuno base: fibra soluble + proteína + probióticos' },
-  { id:2, meal:'Desayuno', name:'Avena cocida cremosa', time:'10 min', rating:'★★★★', ok:['optimo','gases','bolitas'], ingredients:'40g copos avena · 200ml leche avena · 1 cda miel · 1 cda crema cacahuete', steps:'Cazo a potencia 7 con avena + leche. Cuando hierva suave, baja a 5-6 y remueve 5-7 min. Apaga, añade miel + crema cacahuete. Tiene que quedar melosa.', note:'Si usas kéfir al lado sumas probióticos' },
-  { id:3, meal:'Desayuno', name:'Overnight oats', time:'5 min + noche', rating:'★★★★', ok:['optimo','gases','bolitas'], ingredients:'Avena remojada en leche de avena/kéfir · frutos secos · miel', steps:'La noche antes: mezclar avena + leche + kéfir opcional. Nevera. Por la mañana añadir fruta y frutos secos.', note:'Fibra soluble + probióticos si usas kéfir' },
-  { id:4, meal:'Desayuno', name:'Tostada aguacate + huevo poché + semillas', time:'10 min', rating:'★★★★', ok:['optimo','bolitas'], ingredients:'Pan de centeno · ½ aguacate · 1-2 huevos · AOVE · semillas chía/sésamo', steps:'Tostar pan. Machacar aguacate con AOVE, sal, pimienta. Huevo poché: agua hirviendo + chorrito vinagre, remolino, 3 min. Montar.', note:'Proteína + grasa buena + carbohidrato integral' },
-  { id:5, meal:'Desayuno', name:'Pan de centeno con atún + AOVE', time:'5 min', rating:'★★★', ok:['optimo','gases','bolitas','blando'], ingredients:'Pan de centeno · 1 lata atún · AOVE · café leche avena', steps:'Abrir lata, escurrir, montar sobre pan con chorrito aceite.', note:'Rápido, proteico, oficina-friendly' },
-  { id:6, meal:'Comida', name:'Fusilli de lentejas con atún + AOVE', time:'15 min', rating:'★★★★', ok:['optimo','bolitas'], ingredients:'Fusilli de lentejas · atún al natural · 1 cda hummus · AOVE · limón · pimienta', steps:'Cocer pasta. Escurrir bien. Mezclar con atún + AOVE + hummus + limón. Ajustar sal y pimienta.', note:'Proteína completa + grasa buena + fibra → digestiva' },
-  { id:7, meal:'Comida', name:'Tortiglioni cremosos de tomate y quesos', time:'20 min', rating:'★★★★★', ok:['optimo','gases'], ingredients:'80-100g tortiglioni · tomate frito sin azúcar · 2 cdas queso de untar · 30-40g mozzarella · queso de cabra · cherry · AOVE', steps:'Cocer pasta al dente, reservar ½ vaso agua cocción. Sartén: AOVE + cherry en dados 3-4 min. Añadir tomate + queso de untar + agua cocción. Pasta a la sartén + mozzarella, remover. Apagar + queso de cabra en trocitos.', note:'Top 5 favoritos. Cremoso sin nata.' },
-  { id:8, meal:'Comida', name:'Tallarines con almejones y tomate cherry', time:'20 min', rating:'★★★★', ok:['optimo','bolitas'], ingredients:'80-90g tallarines · 1 lata almejones · 8-10 cherry · 1 diente ajo · 1 cda AOVE · sal', steps:'Cocer pasta, reservar agua. Sartén: AOVE + ajo laminado 2-3 min. Cherry partidos 3-4 min. Almejones escurridos 30-40 seg. Pasta + agua cocción + remover 1 min.', note:'Textura jugosa → mejora tránsito. Sin salsas pesadas → menos gases' },
-  { id:9, meal:'Comida', name:'Bowl arroz + pollo + aguacate', time:'20 min', rating:'★★★★', ok:['optimo','gases','bolitas'], ingredients:'Arroz basmati · pollo a la plancha · aguacate · cebolla dulce · soja baja sal', steps:'Cocer arroz. Pollo a la plancha con especias. Montar bowl: arroz + pollo en tiras + aguacate + cebolla + chorrito soja.', note:'Bowl mediterráneo básico' },
-  { id:10, meal:'Comida', name:'Arroz + pollo simple (reset)', time:'20 min', rating:'★★★', ok:['blando','gases'], ingredients:'Arroz blanco · pechuga de pollo · AOVE · sal', steps:'Cocer arroz. Pollo a la plancha simple. Chorrito AOVE. Nada más.', note:'Reset digestivo. Máxima simplicidad.' },
-  { id:11, meal:'Comida', name:'Risotto rápido con atún y parmesano', time:'25 min', rating:'★★★★', ok:['optimo','bolitas'], ingredients:'60-80g arroz · ¼ cebolla picada · 1 lata atún · leche vegetal · parmesano · AOVE', steps:'Sartén: AOVE + cebolla 8-10 min. Subir: arroz, remover 1 min. Agua caliente hasta cubrir, 14-16 min añadiendo más. Baja: atún, mezclar 1 min. Apagar: parmesano + reposo.', note:'Cremoso sin nata' },
-  { id:12, meal:'Comida', name:'Quinoa + pollo + aguacate + zanahoria', time:'20 min', rating:'★★★★', ok:['optimo','bolitas'], ingredients:'Quinoa cocida · pollo salteado · aguacate · zanahoria rallada o cocida', steps:'Cocer quinoa 12-14 min. Pollo en tiras a la plancha. Montar con zanahoria y aguacate.', note:'Quinoa = proteína completa vegetal + carbohidrato' },
-  { id:13, meal:'Merienda', name:'Lata de almejones + pan integral', time:'2 min', rating:'★★★★', ok:['optimo','gases','bolitas','blando'], ingredients:'1 lata almejones al natural · 1 rebanada pan integral', steps:'Abrir lata, montar sobre pan.', note:'Proteína de mar en 2 minutos' },
-  { id:14, meal:'Merienda', name:'Yogur griego + avena + miel', time:'3 min', rating:'★★★★★', ok:['optimo','gases','bolitas'], ingredients:'Yogur griego · 2 cdas avena · miel', steps:'Mezclar en bol o tarrito.', note:'Clásico fácil. Llevar en tarrito al trabajo' },
-  { id:15, meal:'Merienda', name:'Mini-wrap integral pavo + aguacate', time:'3 min', rating:'★★★★', ok:['optimo','gases','bolitas'], ingredients:'Tortilla integral pequeña · pavo · aguacate', steps:'Enrollar y listo.', note:'Proteína + grasa. Muy manejable' },
-  { id:16, meal:'Cena', name:'Tosta aguacate + cherry + atún', time:'10 min', rating:'★★★★★', ok:['optimo','bolitas'], ingredients:'Pan integral o centeno · ½ aguacate · cherry · canónigos · AOVE · atún', steps:'Tostar pan. Machacar aguacate + AOVE + sal. Saltear cherry 2-3 min. Montar: pan → aguacate → cherry → canónigos. Atún encima.', note:'Proteína + grasa + verdura. Cena equilibrada' },
-  { id:17, meal:'Cena', name:'Mini pizza pita + mozzarella (airfryer)', time:'10 min', rating:'★★★★★', ok:['optimo'], ingredients:'Pan pita integral · salsa de tomate · mozzarella · orégano', steps:'Extender tomate sobre pita. Mozzarella + orégano. Airfryer 180°C 8-10 min.', note:'Fav absoluto. Fácil y rápido.' },
-  { id:18, meal:'Cena', name:'Sopa de fideos con pollo', time:'25 min', rating:'★★★★★', ok:['blando','bolitas','gases'], ingredients:'½ bric caldo pollo · ½ bric agua · 1 pechuga pollo · fideos finos · AOVE · zanahoria opcional', steps:'Olla nivel alto: caldo + agua + pechuga. Cuando hierva: nivel 6, 10-12 min. Zanahoria al min 5-6. Sacar pollo, subir nivel, fideos 3-5 min. Trocear pollo, devolver + AOVE.', note:'Ideal tras días de malestar intestinal. Reset total.' },
-  { id:19, meal:'Cena', name:'Huevos al horno con cherry + parmesano', time:'15 min', rating:'★★★★', ok:['optimo','gases'], ingredients:'2-3 huevos · tomates cherry · parmesano rallado · AOVE · sal · pimienta', steps:'Fuente apta airfryer: AOVE + cherry partidos. Cascar huevos encima. Parmesano + pimienta. Airfryer 180°C 10-12 min.', note:'Ajustar tiempo según si quieres yema líquida o cuajada' },
-  { id:20, meal:'Cena', name:'Pan centeno + queso de cabra + cherry', time:'5 min', rating:'★★★', ok:['optimo','gases'], ingredients:'Pan de centeno · queso de cabra · cherry · nueces', steps:'Tostar, colocar ingredientes.', note:'Cena simple. El queso de cabra es más digestivo que curados' },
-  { id:21, meal:'Cena', name:'Wrap caliente proteico (huevo + atún)', time:'10 min', rating:'★★★★', ok:['optimo','bolitas'], ingredients:'1 tortilla integral grande · 2 huevos · ½ lata atún · 1 cdita aceite', steps:'Sartén + aceite. Huevos batidos, mover suave, apagar al 80%. Añadir atún, mezclar 10 seg. Tortilla 20 seg en sartén vacía. Revuelto al centro, enrollar, 1-2 min por lado para sellar.', note:'Clave: apagar con huevos aún húmedos' }
+// Meal categories with digestive impact
+const MEAL_CATS=[
+  {key:'saludable',label:'🥗 Saludable',desc:'Yogur, avena, pasta simple, pollo, verdura cocida',impact:'verde',impactLabel:'✓ Favorece',score:2},
+  {key:'normal',label:'🍽️ Normal',desc:'Arroz, pasta, sandwich, huevos, comida casera estándar',impact:'verde',impactLabel:'✓ Neutro',score:1},
+  {key:'fuera',label:'🏪 Comida fuera',desc:'Restaurante, menú del día, comida de trabajo',impact:'amarillo',impactLabel:'~ Variable',score:0},
+  {key:'exceso_leve',label:'🍺 Exceso leve',desc:'1-2 cervezas, bravas, patatas fritas, frankfurt, tapas',impact:'amarillo',impactLabel:'~ Gases posibles',score:-0.5},
+  {key:'procesada',label:'🍕 Procesada / rápida',desc:'Pizza, hamburguesa, McDonald\'s, precocinados',impact:'rojo',impactLabel:'⚠ Ralentiza tránsito',score:-1},
+  {key:'exceso',label:'🥃 Exceso real',desc:'Alcohol fuerte, fritos+cerveza toda la noche, atracón',impact:'rojo',impactLabel:'✗ Disrumpe directo',score:-2},
+  {key:'vacio',label:'⏭️ Me la salté',desc:'No comí en ese momento',impact:'amarillo',impactLabel:'~ Saltada',score:0}
 ];
 
-const MEALS = ['Todos', 'Desayuno', 'Comida', 'Merienda', 'Cena'];
+const MEAL_SLOTS=['Desayuno','Almuerzo','Comida','Merienda','Cena'];
 
-// ─── STATE ──────────────────────────────────────────────────────────────────
+// All recipes from the library
+const RECIPES=[
+  // DESAYUNO
+  {id:1,meal:'Desayuno',name:'Yogur griego + avena + miel + arándanos',rating:5,ok:['optimo','gases','bolitas'],ingredients:'Yogur griego · 3 cdas copos avena · miel · arándanos · nueces',steps:'Mezclar todo en bol.',note:'Desayuno base: fibra soluble + proteína + antioxidantes'},
+  {id:2,meal:'Desayuno',name:'Overnight oats',rating:4,ok:['optimo','gases','bolitas'],ingredients:'Avena remojada en leche de avena/kéfir · frutos secos · miel',steps:'La noche antes: avena + leche + kéfir opcional. Nevera. Mañana añadir fruta y frutos secos.',note:'Fibra soluble + probióticos si usas kéfir'},
+  {id:3,meal:'Desayuno',name:'Avena cocida cremosa',rating:4,ok:['optimo','gases','bolitas'],ingredients:'40g copos avena · 200ml leche avena · 1 cda miel · 1 cda crema cacahuete',steps:'Cazo a fuego medio con avena + leche. Cuando hierva suave, baja y remueve 5-7 min. Añade miel + crema cacahuete.',note:'Si añades kéfir al lado sumas probióticos'},
+  {id:4,meal:'Desayuno',name:'Tostada aguacate + huevo poché + semillas',rating:4,ok:['optimo','bolitas'],ingredients:'Pan de centeno · ½ aguacate · 1-2 huevos · AOVE · semillas chía/sésamo',steps:'Tostar pan. Machacar aguacate con AOVE, sal. Huevo poché: agua hirviendo + vinagre, remolino, 3 min.',note:'Proteína + grasa buena + carbohidrato integral'},
+  {id:5,meal:'Desayuno',name:'Pan de centeno con atún y AOVE',rating:3,ok:['optimo','gases','bolitas','blando'],ingredients:'Pan de centeno · 1 lata atún · AOVE',steps:'Abrir lata, escurrir, montar sobre pan con chorrito aceite.',note:'Rápido, proteico, oficina-friendly'},
+  {id:6,meal:'Desayuno',name:'Tostada salmón ahumado',rating:4,ok:['optimo','bolitas'],ingredients:'Pan integral · queso cottage · salmón ahumado · pepino o rúcula · limón',steps:'Tostar pan. Untar cottage. Salmón encima. Exprimir limón.',note:'Omega-3 + proteína completa. Muy digestivo.'},
+  {id:7,meal:'Desayuno',name:'Tostadas con hummus y jamón',rating:3,ok:['optimo','bolitas'],ingredients:'Pan integral · hummus · rúcula · jamón serrano o pavo',steps:'Tostar pan, untar hummus, colocar ingredientes.',note:'Proteína + grasa saludable del hummus'},
+  {id:8,meal:'Desayuno',name:'Requesón con miel y nueces',rating:4,ok:['optimo','gases','bolitas'],ingredients:'Requesón · miel · nueces · arándanos',steps:'Mezclar en bol.',note:'Variante al yogur — mismo perfil nutricional'},
+  {id:9,meal:'Desayuno',name:'Pancakes de avena y yogur',rating:3,ok:['optimo','bolitas'],ingredients:'Avena · yogur griego · 1 huevo · miel · canela',steps:'Triturar avena. Mezclar con yogur, huevo, miel. Cocinar en sartén antiadherente.',note:'Más elaborado, ideal fin de semana'},
+  {id:10,meal:'Desayuno',name:'Tortilla integral con aguacate y pavo',rating:3,ok:['optimo','bolitas'],ingredients:'Tortilla integral · ½ aguacate · pavo natural · tomate',steps:'Calentar tortilla. Machacar aguacate. Montar con pavo y tomate.',note:'Wrap de desayuno proteico'},
+  // COMIDA
+  {id:11,meal:'Comida',name:'Fusilli de lentejas con atún y AOVE',rating:4,ok:['optimo','bolitas'],ingredients:'Fusilli de lentejas · atún al natural · 1 cda hummus · AOVE · limón',steps:'Cocer pasta. Mezclar con atún + AOVE + hummus + limón.',note:'Proteína completa + fibra → digestiva'},
+  {id:12,meal:'Comida',name:'Tortiglioni cremosos de tomate y quesos',rating:5,ok:['optimo','gases'],ingredients:'80-100g tortiglioni · tomate frito sin azúcar · queso de untar · mozzarella · cherry · AOVE',steps:'Cocer pasta al dente, reservar agua cocción. Sartén: AOVE + cherry. Añadir tomate + queso de untar + agua cocción. Pasta a la sartén + mozzarella.',note:'Top favorito. Cremoso sin nata.'},
+  {id:13,meal:'Comida',name:'Tallarines con almejones y tomate cherry',rating:4,ok:['optimo','bolitas'],ingredients:'80-90g tallarines · 1 lata almejones · 8-10 cherry · 1 diente ajo · AOVE',steps:'Cocer pasta, reservar agua. Sartén: AOVE + ajo laminado. Cherry partidos. Almejones escurridos. Pasta + agua cocción.',note:'Textura jugosa → mejora tránsito'},
+  {id:14,meal:'Comida',name:'Bowl arroz + pollo + aguacate',rating:4,ok:['optimo','gases','bolitas'],ingredients:'Arroz basmati · pollo a la plancha · aguacate · cebolla dulce · soja baja sal',steps:'Cocer arroz. Pollo a la plancha. Montar bowl con todos los ingredientes.',note:'Bowl mediterráneo equilibrado'},
+  {id:15,meal:'Comida',name:'Arroz + pollo simple (reset)',rating:3,ok:['blando','gases'],ingredients:'Arroz blanco · pechuga de pollo · AOVE · sal',steps:'Cocer arroz. Pollo a la plancha simple. Chorrito AOVE.',note:'Reset digestivo. Máxima simplicidad.'},
+  {id:16,meal:'Comida',name:'Risotto rápido con atún y parmesano',rating:4,ok:['optimo','bolitas'],ingredients:'60-80g arroz · ¼ cebolla · 1 lata atún · leche vegetal · parmesano · AOVE',steps:'Sartén: AOVE + cebolla 8 min. Arroz 1 min. Agua caliente hasta cubrir, 14-16 min. Atún + mezclar. Apagar + parmesano.',note:'Cremoso sin nata'},
+  {id:17,meal:'Comida',name:'Quinoa con pollo, aguacate y zanahoria',rating:4,ok:['optimo','bolitas'],ingredients:'Quinoa cocida · pollo salteado · aguacate · zanahoria rallada o cocida',steps:'Cocer quinoa 12-14 min. Pollo en tiras a la plancha. Montar con zanahoria y aguacate.',note:'Proteína completa vegetal + carbohidrato'},
+  {id:18,meal:'Comida',name:'Pasta puttanesca',rating:4,ok:['optimo'],ingredients:'80-90g pasta · tomate triturado natural · aceitunas negras · alcaparras · anchoas · ajo · AOVE',steps:'Sartén: AOVE + ajo + anchoas hasta disolverse. Tomate + aceitunas + alcaparras 10 min. Pasta cocida a la sartén.',note:'Muy sabrosa, intensa. No apta días de gases.'},
+  {id:19,meal:'Comida',name:'Ñoquis con tofu, tomate y queso (airfryer)',rating:4,ok:['optimo','bolitas'],ingredients:'200g ñoquis · 100-120g tofu firme · 3-4 cherry · parmesano · AOVE',steps:'Airfryer ñoquis + tofu 180°C 15 min. Montar con cherry, parmesano y AOVE.',note:'Proteína vegetal + carbohidrato. Digestivo.'},
+  {id:20,meal:'Comida',name:'Boniato + huevos + aguacate',rating:3,ok:['optimo','bolitas'],ingredients:'Boniato · 1-2 huevos · aguacate · AOVE',steps:'Boniato al horno o airfryer. Huevo frito o poché. Montar con aguacate.',note:'Carbohidrato complejo + grasa + proteína'},
+  {id:21,meal:'Comida',name:'Bowl arroz + huevo + aguacate',rating:4,ok:['optimo','bolitas'],ingredients:'Arroz basmati · 1-2 huevos cocidos · aguacate · tomate · AOVE',steps:'Cocer arroz y huevo. Montar bowl con aguacate y tomate.',note:'Versión vegetariana del bowl clásico'},
+  {id:22,meal:'Comida',name:'Tallarines con salsa de queso y gambas',rating:3,ok:['optimo'],ingredients:'80-100g tallarines · 100-120g queso cottage · 50-70g gambas · ajo · AOVE',steps:'Cocer pasta. Sartén: ajo + gambas. Cottage + agua cocción = salsa. Mezclar.',note:'Proteína marina + salsa ligera sin nata'},
+  {id:23,meal:'Comida',name:'Wrap integral de pollo con aguacate',rating:3,ok:['optimo','bolitas'],ingredients:'Tortilla integral · pollo a la plancha · crema de aguacate · lechuga',steps:'Calentar tortilla. Montar con pollo, aguacate y lechuga.',note:'Fácil de llevar al trabajo'},
+  {id:24,meal:'Comida',name:'Arroz cremoso de atún y huevo',rating:4,ok:['optimo','bolitas'],ingredients:'70-80g arroz blanco · 1 lata atún · 1 huevo · 1 cda AOVE',steps:'Cocer arroz. Mezclar con atún, huevo batido y AOVE en caliente.',note:'Cremoso, rápido y muy completo'},
+  // MERIENDA
+  {id:25,meal:'Merienda',name:'Yogur griego + avena + miel',rating:5,ok:['optimo','gases','bolitas'],ingredients:'Yogur griego · 2 cdas avena · miel',steps:'Mezclar en bol o tarrito.',note:'Clásico fácil. Llevar en tarrito al trabajo'},
+  {id:26,meal:'Merienda',name:'Lata de almejones + pan integral',rating:4,ok:['optimo','gases','bolitas','blando'],ingredients:'1 lata almejones al natural · 1 rebanada pan integral',steps:'Abrir lata, montar sobre pan.',note:'Proteína de mar en 2 minutos'},
+  {id:27,meal:'Merienda',name:'Mini-wrap integral pavo + aguacate',rating:4,ok:['optimo','gases','bolitas'],ingredients:'Tortilla integral pequeña · pavo · aguacate',steps:'Enrollar y listo.',note:'Proteína + grasa. Muy manejable'},
+  {id:28,meal:'Merienda',name:'Lata de mejillones + pan integral',rating:3,ok:['optimo','gases','bolitas','blando'],ingredients:'1 lata mejillones en conserva · pan integral · tomate cherry',steps:'Montar sobre pan con cherry.',note:'Variante a los almejones. Igual de fácil.'},
+  {id:29,meal:'Merienda',name:'Mini sándwich jamón cocido y hummus',rating:3,ok:['optimo','bolitas'],ingredients:'Pan integral · jamón cocido · hummus',steps:'Montar y listo.',note:'Proteína + legumbre. Fácil de llevar.'},
+  {id:30,meal:'Merienda',name:'Tosta con hummus, tomate y AOVE',rating:3,ok:['optimo','bolitas'],ingredients:'Pan integral · hummus · tomate · AOVE',steps:'Tostar pan, untar hummus, tomate encima.',note:'Versión vegetariana. Rápida.'},
+  {id:31,meal:'Merienda',name:'Requesón con fruta y nueces',rating:3,ok:['optimo','gases','bolitas'],ingredients:'Requesón · fruta de temporada · nueces · miel',steps:'Montar en bol.',note:'Ligero y proteico'},
+  // CENA
+  {id:32,meal:'Cena',name:'Tosta aguacate + cherry + atún',rating:5,ok:['optimo','bolitas'],ingredients:'Pan integral o centeno · ½ aguacate · cherry · canónigos · AOVE · atún',steps:'Tostar pan. Machacar aguacate + AOVE + sal. Saltear cherry 2-3 min. Montar: pan → aguacate → cherry → canónigos → atún.',note:'Proteína + grasa + verdura. Cena equilibrada'},
+  {id:33,meal:'Cena',name:'Mini pizza pita + mozzarella (airfryer)',rating:5,ok:['optimo'],ingredients:'Pan pita integral · salsa de tomate · mozzarella · orégano',steps:'Extender tomate sobre pita. Mozzarella + orégano. Airfryer 180°C 8-10 min.',note:'Favorito absoluto. Fácil y rápido.'},
+  {id:34,meal:'Cena',name:'Sopa de fideos con pollo',rating:5,ok:['blando','bolitas','gases'],ingredients:'½ bric caldo pollo · ½ bric agua · 1 pechuga pollo · fideos finos · AOVE · zanahoria',steps:'Olla: caldo + agua + pechuga. Hierve 10-12 min. Fideos 3-5 min. Trocear pollo, devolver + AOVE.',note:'Ideal tras días de malestar intestinal. Reset total.'},
+  {id:35,meal:'Cena',name:'Huevos al horno con cherry y parmesano',rating:4,ok:['optimo','gases'],ingredients:'2-3 huevos · tomates cherry · parmesano rallado · AOVE · sal · pimienta',steps:'Fuente: AOVE + cherry. Cascar huevos. Parmesano + pimienta. Airfryer 180°C 10-12 min.',note:'Ajustar tiempo si quieres yema líquida o cuajada'},
+  {id:36,meal:'Cena',name:'Pan centeno + queso de cabra + cherry',rating:3,ok:['optimo','gases'],ingredients:'Pan de centeno · queso de cabra · cherry · nueces',steps:'Tostar, colocar ingredientes.',note:'Cena simple. El queso de cabra es más digestivo que curados'},
+  {id:37,meal:'Cena',name:'Wrap caliente proteico (huevo + atún)',rating:4,ok:['optimo','bolitas'],ingredients:'1 tortilla integral grande · 2 huevos · ½ lata atún · aceite',steps:'Sartén + aceite. Huevos batidos, mover suave, apagar al 80%. Atún + mezclar. Tortilla 20 seg. Revuelto al centro, enrollar.',note:'Apagar con huevos aún húmedos es la clave'},
+  {id:38,meal:'Cena',name:'Tostada de salmón y aguacate',rating:4,ok:['optimo','bolitas'],ingredients:'Pan integral · salmón ahumado o en tacos · aguacate · rúcula · limón',steps:'Tostar pan. Aguacate + limón. Salmón encima + rúcula.',note:'Omega-3 + grasa buena. Cena ligera y completa.'},
+  {id:39,meal:'Cena',name:'Boniato airfryer relleno de atún y aguacate',rating:3,ok:['optimo','bolitas'],ingredients:'1 boniato mediano · atún · aguacate · AOVE',steps:'Airfryer boniato 200°C 20-25 min. Abrir, rellenar con atún + aguacate machacado.',note:'Cena completa sin necesidad de cocinar mucho'},
+  {id:40,meal:'Cena',name:'Bowl mediterráneo con arroz y pollo',rating:4,ok:['optimo','bolitas'],ingredients:'Arroz basmati · pollo a la plancha · tzatziki o yogur · pepino · tomate',steps:'Cocer arroz. Pollo a la plancha. Montar bowl con yogur, pepino y tomate.',note:'Probiótico del yogur + proteína + carbohidrato'},
+  {id:41,meal:'Cena',name:'Tosta caliente de gulas y queso de cabra',rating:4,ok:['optimo'],ingredients:'2 rebanadas pan integral · 100g gulas · 30-40g queso de cabra · AOVE · ajo',steps:'Sartén: AOVE + ajo + gulas 2 min. Tostar pan. Montar con gulas y queso.',note:'Si el queso es muy salado: mezclar 50/50 con cottage'},
+  {id:42,meal:'Cena',name:'Crema de zanahoria y calabaza',rating:3,ok:['blando','gases','bolitas'],ingredients:'Zanahoria · calabaza · caldo · AOVE · yogur o requesón como topping',steps:'Cocer verduras en caldo. Triturar. AOVE + topping de yogur o requesón.',note:'Digestiva y reconfortante. Apta para días malos.'},
+  {id:43,meal:'Cena',name:'Huevo revuelto con cottage y tomate',rating:3,ok:['optimo','gases'],ingredients:'2 huevos · queso cottage · tomate cherry · AOVE',steps:'Sartén + AOVE. Huevos + cottage. Cherry partidos. Cocinar suave.',note:'Proteína completa + licopeno. Muy digestivo.'},
+  {id:44,meal:'Cena',name:'Tacos de atún o salmón con aguacate',rating:3,ok:['optimo','bolitas'],ingredients:'Tortitas integrales o de maíz · salmón o atún · aguacate · lima · cilantro opcional',steps:'Calentar tortitas. Montar con pescado, aguacate machacado y lima.',note:'Fresco y ligero. Buena opción pre-noche.'}
+];
 
-let currentTab = 'hoy';
-let currentMealFilter = 'Todos';
-let todayState = null;
-let trackerData = loadTracker();
-let openRecipe = null;
+const MEALS=['Todos','Desayuno','Comida','Merienda','Cena'];
 
-function loadTracker() {
-  try { return JSON.parse(localStorage.getItem('tracker7')) || Array(7).fill(null); }
-  catch { return Array(7).fill(null); }
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let _checklists={};
+let todayState=null;
+let openRecipe=null;
+let currentMealFilter='Todos';
+let modalSlot=null;
+let modalDay=null;
+
+// Tracker: stored as {date: 'YYYY-MM-DD', state: 'bolitas'} array, 7 entries max
+let trackerLog=loadTrackerLog();
+let todayMeals=loadMeals('meals-today');
+let yesterdayMeals=loadMeals('meals-yesterday');
+
+function load(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+function today(){return new Date().toISOString().slice(0,10)}
+function dateStr(daysAgo){const d=new Date();d.setDate(d.getDate()-daysAgo);return d.toISOString().slice(0,10)}
+function shortDate(iso){const d=new Date(iso+'T12:00:00');return['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()]+' '+d.getDate()}
+
+function loadTrackerLog(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('trackerLog2'));
+    if(saved&&Array.isArray(saved)&&saved.length>0){
+      // Ensure today has an entry
+      const hasToday=saved.some(e=>e.date===today());
+      if(!hasToday){
+        saved.push({date:today(),state:null});
+        // trim to last 7
+        const trimmed=saved.slice(-7);
+        localStorage.setItem('trackerLog2',JSON.stringify(trimmed));
+        return trimmed;
+      }
+      return saved.slice(-7);
+    }
+  }catch{}
+  // First run — pre-load Oscar's known data
+  return[
+    {date:dateStr(6),state:null},
+    {date:dateStr(5),state:'blando'},
+    {date:dateStr(4),state:'gases'},
+    {date:dateStr(3),state:'bolitas'},
+    {date:dateStr(2),state:'bolitas'},
+    {date:dateStr(1),state:'bolitas'},
+    {date:today(),state:'bolitas'},
+  ];
 }
-function saveTracker() {
-  try { localStorage.setItem('tracker7', JSON.stringify(trackerData)); } catch {}
-}
-function loadTodayState() {
-  try {
-    const saved = JSON.parse(localStorage.getItem('todayState'));
-    if (saved && saved.date === today()) return saved.state;
-  } catch {}
-  return null;
-}
-function saveTodayState(s) {
-  try { localStorage.setItem('todayState', JSON.stringify({ date: today(), state: s })); } catch {}
-}
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
+function saveTrackerLog(){save('trackerLog2',trackerLog)}
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
+function loadMeals(key){
+  try{
+    const saved=JSON.parse(localStorage.getItem(key));
+    if(!saved)return{};
+    const targetDate=key==='meals-today'?today():dateStr(1);
+    if(saved.date!==targetDate){
+      // Auto-move: if opening a new day and 'meals-today' has yesterday's date, copy to yesterday
+      if(key==='meals-today'&&saved.date===dateStr(1)){
+        // Today's slot is empty, yesterday's should get what was today
+        const prev=JSON.parse(localStorage.getItem('meals-yesterday'));
+        if(!prev||prev.date!==dateStr(1)){
+          localStorage.setItem('meals-yesterday',JSON.stringify({date:dateStr(1),meals:saved.meals||{}}));
+        }
+      }
+      return{};
+    }
+    return saved.meals||{};
+  }catch{return{}}
+}
+function saveMeals(key,meals){
+  const date=key==='meals-today'?today():dateStr(1);
+  save(key,{date,meals});
+}
+function loadTodayState(){
+  try{const s=JSON.parse(localStorage.getItem('todayState'));if(s&&s.date===today())return s.state;}catch{}
+  // fallback: check trackerLog for today
+  const todayEntry=trackerLog.find(e=>e.date===today());
+  return todayEntry?todayEntry.state:null;
+}
+function saveTodayState(s){save('todayState',{date:today(),state:s})}
 
-todayState = loadTodayState();
-renderHoy();
-renderTracker();
-renderMealFilter();
-
-// ─── TAB NAV ─────────────────────────────────────────────────────────────────
-
-function switchTab(name, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+function switchTab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
   btn.classList.add('active');
-  currentTab = name;
-  if (name === 'recetas') renderRecipes();
+  if(name==='recetas')renderRecipes();
+  if(name==='tracker')renderTracker();
+  if(name==='comidas')renderComidas();
 }
 
 // ─── HOY ─────────────────────────────────────────────────────────────────────
-
-function renderHoy() {
-  const grid = document.getElementById('status-grid');
-  grid.innerHTML = STATES.map(s => `
-    <div class="status-card ${todayState === s.key ? 'selected' : ''}"
-         style="${todayState === s.key ? `--accent:${s.accent};--accent-bg:${s.accentBg}` : ''}"
+function renderHoy(){
+  const grid=document.getElementById('status-grid');
+  grid.innerHTML=STATES.map(s=>`
+    <div class="sc ${todayState===s.key?'sel':''}"
+         style="${todayState===s.key?`--ac:${s.ac};--ac-bg:${s.acBg}`:''}"
          onclick="selectState('${s.key}')">
-      <span class="s-icon">${s.icon}</span>
-      <div class="s-name">${s.name}</div>
-      <div class="s-desc">${s.desc}</div>
-    </div>
-  `).join('');
+      <span class="si">${s.icon}</span>
+      <div class="sn">${s.name}</div>
+      <div class="sd">${s.desc}</div>
+    </div>`).join('');
   renderProtocol();
   renderSemaforo();
 }
 
-function selectState(key) {
-  todayState = key;
+function selectState(key){
+  todayState=key;
   saveTodayState(key);
-  // update tracker today (last cell)
-  trackerData[6] = key;
-  saveTracker();
+  const todayEntry=trackerLog.find(e=>e.date===today());
+  if(todayEntry)todayEntry.state=key;
+  else trackerLog.push({date:today(),state:key});
+  // keep only last 7
+  trackerLog=trackerLog.slice(-7);
+  saveTrackerLog();
   renderHoy();
   renderTracker();
 }
 
-function renderProtocol() {
-  const area = document.getElementById('protocol-area');
-  if (!todayState) {
-    area.innerHTML = `<div class="no-selection"><span style="font-size:32px">☝️</span><span>Selecciona un estado para ver tu protocolo</span></div>`;
+function renderProtocol(){
+  const area=document.getElementById('protocol-area');
+  if(!todayState){area.innerHTML=`<div class="no-sel"><span style="font-size:32px">☝️</span><span>Selecciona un estado para ver tu protocolo</span></div>`;return;}
+  const p=PROTOCOLS[todayState];
+  const s=STATES.find(x=>x.key===todayState);
+  area.innerHTML=`<div class="proto-card mt16">
+    <div class="proto-hdr"><div class="proto-lbl" style="color:${s.ac}">${p.label}</div></div>
+    <div>${p.items.map(i=>`<div class="proto-item"><span class="pi-icon">${i.icon}</span><span>${i.text}</span></div>`).join('')}</div>
+  </div>`;
+}
+
+function renderSemaforo(){
+  const area=document.getElementById('semaforo-area');
+  if(!todayState){area.innerHTML='';return;}
+  const recent=trackerLog.slice(-3).map(e=>e.state);
+  const scores=recent.map(k=>{if(!k)return 0;const s=STATES.find(x=>x.key===k);return s?s.score:0;});
+  const total=scores.reduce((a,b)=>a+b,0);
+  const hasBad=recent.slice(0,2).some(k=>k==='blando'||k==='bolitas'||k==='gases');
+  const todayOk=todayState==='optimo';
+  let color,bg,emoji,status,note;
+  if(todayOk&&total>=5&&!hasBad){color='#16A34A';bg='#DCFCE7';emoji='🟢';status='Buenas condiciones';note='Llevas días estables. Sin necesidad de preparación especial.';}
+  else if(todayOk&&total>=2){color='#F59E0B';bg='#FEF3C7';emoji='🟡';status='Posible, con conciencia';note='Hoy estás bien pero el patrón reciente no es del todo estable.';}
+  else{color='#E55A4E';bg='#FEE2E0';emoji='🔴';status='Mejor esperar';note=todayState==='optimo'?'Días anteriores irregulares. Un día más de reset y el semáforo cambia.':'Hoy hay señales activas. Activa el protocolo, mañana comprueba de nuevo.';}
+  area.innerHTML=`<div class="sema mt16">
+    <div class="sema-dot" style="background:${bg}">${emoji}</div>
+    <div><div class="sema-lbl">Sexo anal espontáneo</div><div class="sema-status" style="color:${color}">${status}</div><div class="sema-note">${note}</div></div>
+  </div>`;
+}
+
+// ─── COMIDAS ─────────────────────────────────────────────────────────────────
+// Comidas se resetean cada día automáticamente (hoy) y ayer (24h antes)
+// El análisis nutricional cruza qué tipo de comidas has hecho con tu estado
+
+const MEAL_NUTR={
+  saludable:{prot:'Alto (yogur, avena, huevo, pollo)',carbs:'Moderado-alto (avena, verdura, legumbre)',fat:'Buenas grasas (AOVE, aguacate, frutos secos)',fiber:'Alta fibra soluble',gut:'✓ Favorece tránsito y microbiota'},
+  normal:{prot:'Moderado',carbs:'Moderado (arroz, pasta, pan)',fat:'Variable',fiber:'Fibra moderada',gut:'✓ Neutro para el intestino'},
+  fuera:{prot:'Variable',carbs:'Frecuentemente alto (pan, arroz, fritos)',fat:'Más grasa saturada, menos AOVE',fiber:'Baja (poca verdura real)',gut:'~ Puede ralentizar si acumulas varios días'},
+  procesada:{prot:'Bajo o de baja calidad',carbs:'Alto en azúcar simple y harina refinada',fat:'Grasa saturada y trans',fiber:'Casi nula',gut:'⚠ Ralentiza el tránsito, favorece gases'},
+  exceso:{prot:'Exceso o desequilibrio',carbs:'Sobrecarga (alcohol, fritos, mucha cantidad)',fat:'Exceso de grasa saturada',fiber:'Nula o desplaza la fibra buena',gut:'✗ Disrumpe el tránsito directamente'},
+  vacio:{prot:'—',carbs:'—',fat:'—',fiber:'Sin aporte',gut:'~ Reduce señales de activación del colon'}
+};
+
+function renderComidas(){
+  const todayDate=today();
+  const yesterdayDate=dateStr(1);
+  document.getElementById('today-date-label').textContent=`Hoy · ${shortDate(todayDate)} · se resetea a medianoche`;
+  document.getElementById('yesterday-date-label').textContent=`Ayer · ${shortDate(yesterdayDate)} · se resetea mañana a medianoche`;
+  renderMealSlots('today-meals',todayMeals,'today');
+  renderMealSlots('yesterday-meals',yesterdayMeals,'yesterday');
+  renderMealInsight();
+}
+
+function renderMealSlots(containerId,meals,day){
+  const el=document.getElementById(containerId);
+  el.innerHTML=MEAL_SLOTS.map(slot=>{
+    const cat=meals[slot];
+    const catData=cat?MEAL_CATS.find(c=>c.key===cat):null;
+    return`<div class="meal-slot ${catData?catData.impact:''} ${catData?'filled':''}" onclick="openMealModal('${slot}','${day}')">
+      <div class="meal-slot-label">${slot}</div>
+      ${catData
+        ?`<div class="meal-slot-content">${catData.label.split(' ').slice(1).join(' ')}</div>
+           <div class="meal-impact impact-${catData.impact}">${catData.impactLabel}</div>`
+        :`<div class="meal-slot-empty">+ Añadir</div>`}
+    </div>`;
+  }).join('');
+}
+
+function renderMealInsight(){
+  const ins=document.getElementById('meal-insight');
+  const allMeals=[...Object.values(todayMeals),...Object.values(yesterdayMeals)];
+  if(allMeals.length===0){
+    ins.innerHTML='<p style="color:var(--muted);font-size:13px">Registra tus comidas para ver el análisis nutricional y cómo pueden estar afectando tu tránsito.</p>';
     return;
   }
-  const p = PROTOCOLS[todayState];
-  const s = STATES.find(x => x.key === todayState);
-  area.innerHTML = `
-    <div class="protocol-card mt16">
-      <div class="protocol-header">
-        <div class="protocol-label" style="color:${s.accent}">${p.label}</div>
-      </div>
-      <div class="proto-items">
-        ${p.items.map(i => `<div class="proto-item"><span class="proto-icon">${i.icon}</span><span>${i.text}</span></div>`).join('')}
-      </div>
-    </div>
-  `;
-}
 
-function renderSemaforo() {
-  const area = document.getElementById('semaforo-area');
-  if (!todayState) { area.innerHTML = ''; return; }
+  const bad=allMeals.filter(k=>k==='exceso'||k==='procesada').length;
+  const badLeve=allMeals.filter(k=>k==='exceso_leve').length;
+  const fuera=allMeals.filter(k=>k==='fuera').length;
+  const good=allMeals.filter(k=>k==='saludable'||k==='normal').length;
+  const saltadas=allMeals.filter(k=>k==='vacio').length;
+  const todayVals=Object.values(todayMeals);
+  const todayBad=todayVals.filter(k=>k==='exceso'||k==='procesada').length;
 
-  // Calculate semaforo: use last 3 days from tracker
-  const recent = trackerData.slice(4, 7); // last 3 days
-  const scores = recent.map(k => {
-    if (!k) return 0;
-    const s = STATES.find(x => x.key === k);
-    return s ? s.score : 0;
-  });
-  const totalScore = scores.reduce((a, b) => a + b, 0);
-  const hasBadRecent = recent.slice(0, 2).some(k => k === 'blando' || k === 'bolitas' || k === 'gases');
-  const todayOk = todayState === 'optimo';
+  // Dominant pattern
+  let pattern='';
+  if(bad>=3)pattern='excesos';
+  else if(bad>=1&&badLeve>=2)pattern='excesos';
+  else if(fuera>=3)pattern='fuera';
+  else if(saltadas>=2)pattern='saltadas';
+  else if(good>=4)pattern='bueno';
+  else pattern='mixto';
 
-  let color, bg, emoji, status, note;
-  if (todayOk && totalScore >= 5 && !hasBadRecent) {
-    color = '#16A34A'; bg = '#DCFCE7'; emoji = '🟢';
-    status = 'Buenas condiciones';
-    note = 'Llevas días estables. Bristol 3-4 sostenido. Sin necesidad de preparación especial.';
-  } else if (todayOk && totalScore >= 2) {
-    color = '#F59E0B'; bg = '#FEF3C7'; emoji = '🟡';
-    status = 'Posible, con conciencia';
-    note = 'Hoy estás bien pero el patrón reciente no es del todo estable. Asegúrate de llevar tiempo sin gases.';
+  const lowFiber=bad+fuera>=3;
+  const lowGoodFat=bad>=2||fuera>=2;
+  const irregularSchedule=saltadas>=2;
+
+  // Add exceso_leve note if relevant
+  const leveNote=badLeve>=1&&bad===0?`<br>• <strong>Excesos leves (${badLeve}):</strong> una cerveza o unas bravas generan gases en 4-6h pero no instalan el patrón solos. El problema es si se acumulan con comidas fuera.`:'';
+
+  let nutriMsg='';
+  if(pattern==='excesos'){
+    nutriMsg=`<strong>Patrón de excesos detectado.</strong> Con ${bad} comidas de alto impacto en los últimos 2 días:<br>
+    • <strong>Fibra:</strong> casi nula — sin fibra soluble el bolo fecal no se forma bien<br>
+    • <strong>Grasa:</strong> exceso de saturada, déficit de AOVE/aguacate que lubrica el tránsito<br>
+    • <strong>Microbiota:</strong> el alcohol y ultraprocesados alteran las bacterias beneficiosas en 24-48h${leveNote}<br>
+    → Esto explica directamente los gases y/o la irregularidad actual.`;
+  } else if(pattern==='fuera'){
+    nutriMsg=`<strong>Varios días comiendo fuera.</strong> Lo que suele faltar:<br>
+    • <strong>Fibra soluble:</strong> sin avena, sin legumbre, sin verdura real → tránsito más lento<br>
+    • <strong>Grasa buena:</strong> poco AOVE, poco aguacate → menos lubricación intestinal<br>
+    • <strong>Probióticos:</strong> sin yogur griego → microbiota sin refuerzo${leveNote}<br>
+    → 2-3 días seguidos comiendo fuera instala el patrón. El reset es volver al desayuno base.`;
+  } else if(pattern==='saltadas'){
+    nutriMsg=`<strong>Comidas saltadas: impacto subestimado.</strong><br>
+    • Cada comida activa el reflejo gastrocólico (el colon se mueve cuando llega comida al estómago)<br>
+    • Sin ese estímulo repetido, el colon no recibe señales regulares<br>
+    • ${saltadas} comidas saltadas = ${saltadas} activaciones perdidas del tránsito${leveNote}<br>
+    → Aunque no comas mal, saltarte comidas ralentiza el intestino de forma directa.`;
+  } else if(pattern==='bueno'){
+    nutriMsg=`<strong>Patrón nutricional bueno.</strong> Fibra soluble, proteína y grasas correctas.${leveNote}<br>
+    • Si tienes bolitas → revisar <strong>hidratación</strong> (¿llegas a 2L?) y <strong>movimiento</strong><br>
+    • Si tienes gases → algún alimento específico (legumbre, cebolla cruda, lácteo+grasa juntos)`;
   } else {
-    color = '#E55A4E'; bg = '#FEE2E0'; emoji = '🔴';
-    status = 'Mejor esperar';
-    note = todayState === 'optimo' ? 'Días anteriores irregulares. Un día más de reset y el semáforo cambia.' : 'Hoy hay señales activas. Activa el protocolo, mañana comprueba de nuevo.';
+    nutriMsg=`<strong>Patrón mixto.</strong> Mezcla de buenas comidas y excesos.${leveNote}<br>
+    • <strong>Lo que funciona:</strong> el yogur y la avena aportan fibra soluble y probióticos<br>
+    • <strong>Lo que falta:</strong> grasa buena en comidas principales (AOVE, aguacate) para lubricar<br>
+    • <strong>El factor clave:</strong> con ${fuera} comidas fuera, la fibra cae aunque el desayuno sea bueno`;
   }
 
-  area.innerHTML = `
-    <div class="semaforo mt16">
-      <div class="semaforo-dot" style="background:${bg}">${emoji}</div>
-      <div class="semaforo-text">
-        <div class="sema-label">Sexo anal espontáneo</div>
-        <div class="sema-status" style="color:${color}">${status}</div>
-        <div class="sema-note">${note}</div>
-      </div>
-    </div>
-  `;
+  // State connection
+  let stateConn='';
+  if(todayState==='bolitas'){
+    if(bad>=2||fuera>=3)stateConn='<br><br><em>🔗 Conexión directa: el patrón de comidas de los últimos días explica el estreñimiento actual.</em>';
+    else stateConn='<br><br><em>🔗 Con buenas comidas y estreñimiento → la prioridad es hidratación (300ml en ayunas) y caminar 20 min después de comer.</em>';
+  }
+  if(todayState==='blando'&&bad>=1)stateConn='<br><br><em>🔗 Las heces blandas tienen sentido con los excesos recientes. Reset 24h.</em>';
+  if(todayState==='gases'&&(fuera>=2||bad>=1))stateConn='<br><br><em>🔗 Los gases son respuesta directa a la acumulación. Hinojo después de comer hoy.</em>';
+
+  ins.innerHTML=`<p style="font-size:13px;line-height:1.7">${nutriMsg}${stateConn}</p>`;
 }
+
+function openMealModal(slot,day){
+  modalSlot=slot;modalDay=day;
+  document.getElementById('mm-title').textContent=`${slot}`;
+  document.getElementById('mm-sub').textContent=day==='today'?`Hoy · ${shortDate(today())}`:`Ayer · ${shortDate(dateStr(1))}`;
+  const current=day==='today'?todayMeals[slot]:yesterdayMeals[slot];
+  document.getElementById('mm-opts').innerHTML=MEAL_CATS.map(c=>`
+    <div class="mopt ${current===c.key?'sel':''}" onclick="selectMeal('${c.key}')">
+      <span class="mopt-icon">${c.label.split(' ')[0]}</span>
+      <div>
+        <div class="mopt-name">${c.label.split(' ').slice(1).join(' ')}</div>
+        <div class="mopt-sub">${c.desc}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('meal-modal').classList.add('show');
+}
+
+function selectMeal(key){
+  if(modalDay==='today'){todayMeals[modalSlot]=key;saveMeals('meals-today',todayMeals);}
+  else{yesterdayMeals[modalSlot]=key;saveMeals('meals-yesterday',yesterdayMeals);}
+  hideModal('meal-modal');
+  renderComidas();
+}
+
+function clearMealSlot(){
+  if(modalDay==='today'){delete todayMeals[modalSlot];saveMeals('meals-today',todayMeals);}
+  else{delete yesterdayMeals[modalSlot];saveMeals('meals-yesterday',yesterdayMeals);}
+  hideModal('meal-modal');
+  renderComidas();
+}
+
+function hideModal(id){document.getElementById(id).classList.remove('show')}
 
 // ─── RECETAS ─────────────────────────────────────────────────────────────────
-
-function renderMealFilter() {
-  const bar = document.getElementById('meal-filter');
-  bar.innerHTML = MEALS.map(m => `
-    <div class="filter-pill ${currentMealFilter === m ? 'active' : ''}" onclick="setMealFilter('${m}')">${m}</div>
-  `).join('');
+function renderMealFilter(){
+  document.getElementById('meal-filter').innerHTML=MEALS.map(m=>`<div class="fpill ${currentMealFilter===m?'active':''}" onclick="setMealFilter('${m}')">${m}</div>`).join('');
 }
+function setMealFilter(m){currentMealFilter=m;renderMealFilter();renderRecipes();}
 
-function setMealFilter(m) {
-  currentMealFilter = m;
-  renderMealFilter();
-  renderRecipes();
-}
-
-function renderRecipes() {
-  const list = document.getElementById('recipe-list');
-  let recipes = RECIPES;
-  if (currentMealFilter !== 'Todos') recipes = recipes.filter(r => r.meal === currentMealFilter);
-  if (todayState) recipes = recipes.sort((a, b) => {
-    const aOk = a.ok.includes(todayState) ? -1 : 1;
-    const bOk = b.ok.includes(todayState) ? -1 : 1;
-    return aOk - bOk;
-  });
-
-  const mealColors = {
-    Desayuno: { bg: '#FEF3C7', text: '#92400e' },
-    Comida: { bg: '#DCFCE7', text: '#14532d' },
-    Merienda: { bg: '#E0F2FE', text: '#075985' },
-    Cena: { bg: '#EDE9FE', text: '#4c1d95' }
+function getAptReason(r,state){
+  if(!state)return null;
+  const isOk=r.ok.includes(state);
+  // Why apt or not apt per state
+  const reasons={
+    optimo:{
+      ok:'Equilibrado y digestivo. Apto cuando el intestino está en modo óptimo.',
+      no:'Este plato puede generar gases o es demasiado rico para mantener el estado óptimo.'
+    },
+    bolitas:{
+      ok:'Contiene grasa buena (AOVE/aguacate) o fibra soluble (avena) que lubrica y activa el tránsito.',
+      no:'Demasiado seco, bajo en grasa o en fibra soluble — puede empeorar el estreñimiento.'
+    },
+    blando:{
+      ok:'Bajo en fibra insoluble, fácil de digerir, no irrita el colon. Ideal para reset.',
+      no:'Demasiado graso, alto en fibra o puede acelerar más el tránsito ya acelerado.'
+    },
+    gases:{
+      ok:'Sin fermentables (sin legumbre, crucífera, cebolla cruda ni lactosa+grasa). Baja producción de gas.',
+      no:'Contiene ingredientes que fermentan en el colon (legumbre, crucífera, alcohol, cebolla cruda).'
+    }
   };
+  return isOk?reasons[state]?.ok:reasons[state]?.no;
+}
 
-  list.innerHTML = recipes.map(r => {
-    const col = mealColors[r.meal] || { bg: '#f3f4f6', text: '#374151' };
-    const isOk = todayState ? r.ok.includes(todayState) : true;
-    const badgeOk = todayState ? (isOk ? ' ✓ apto hoy' : ' ✗ no ideal hoy') : '';
-    const badgeColor = isOk ? '#16A34A' : '#9ca3af';
-    return `
-      <div class="recipe-card" onclick="toggleRecipe(${r.id})">
-        <div class="recipe-card-header">
-          <span class="recipe-meal-badge" style="background:${col.bg};color:${col.text}">${r.meal}</span>
-          <div>
-            <div class="recipe-name">${r.name}</div>
-            <div class="recipe-meta">⏱ ${r.time} ${r.rating ? '· ' + r.rating : ''} <span style="color:${badgeColor};font-size:11px;font-weight:600">${badgeOk}</span></div>
-          </div>
-        </div>
-        <div class="recipe-detail ${openRecipe === r.id ? 'open' : ''}" id="rd-${r.id}">
-          <div class="recipe-detail-title">Ingredientes</div>
-          <p>${r.ingredients}</p>
-          <div class="recipe-detail-title">Preparación</div>
-          <p>${r.steps}</p>
-          ${r.note ? `<div class="recipe-detail-title">Por qué</div><p>${r.note}</p>` : ''}
+function starsHTML(ok){
+  const stars=ok.length>=4?5:ok.length===3?4:ok.length===2?3:2;
+  return Array.from({length:5},(_,i)=>`<span class="star ${i<stars?'full':'empty'}">★</span>`).join('');
+}
+
+function renderRecipes(){
+  const list=document.getElementById('recipe-list');
+  let recipes=RECIPES;
+  if(currentMealFilter!=='Todos')recipes=recipes.filter(r=>r.meal===currentMealFilter);
+  if(todayState){
+    recipes=[...recipes].sort((a,b)=>{
+      const aOk=a.ok.includes(todayState)?0:1;
+      const bOk=b.ok.includes(todayState)?0:1;
+      return aOk-bOk;
+    });
+  }
+  const mealColors={Desayuno:{bg:'#FEF3C7',text:'#92400e'},Comida:{bg:'#DCFCE7',text:'#14532d'},Merienda:{bg:'#E0F2FE',text:'#075985'},Cena:{bg:'#EDE9FE',text:'#4c1d95'}};
+  list.innerHTML=recipes.map(r=>{
+    const col=mealColors[r.meal]||{bg:'#f3f4f6',text:'#374151'};
+    const isOk=todayState?r.ok.includes(todayState):true;
+    const aptReason=getAptReason(r,todayState);
+    const okBadge=todayState
+      ?(isOk
+        ?`<span class="dig-badge" style="background:#DCFCE7;color:#16A34A">✓ apto hoy</span>`
+        :`<span class="dig-badge" style="background:#f3f4f6;color:#9ca3af">no ideal hoy</span>`)
+      :'';
+    return`<div class="recipe-card" onclick="toggleRecipe(${r.id})">
+      <div class="rc-header">
+        <span class="rc-badge" style="background:${col.bg};color:${col.text}">${r.meal}</span>
+        <div style="flex:1">
+          <div class="rc-name">${r.name}</div>
+          <div class="rc-meta"><div class="stars">${starsHTML(r.ok)}</div>${okBadge}</div>
+          ${aptReason&&openRecipe!==r.id?`<div style="font-size:11px;color:${isOk?'#16A34A':'#9ca3af'};margin-top:3px;line-height:1.3">${aptReason}</div>`:''}
         </div>
       </div>
-    `;
+      <div class="rc-detail ${openRecipe===r.id?'open':''}" id="rd-${r.id}">
+        ${aptReason?`<div style="background:${isOk?'#DCFCE7':'#f3f4f6'};border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:12px;color:${isOk?'#15803d':'#6b7280'};line-height:1.4"><strong>${isOk?'Por qué es apto hoy':'Por qué no es ideal hoy'}:</strong> ${aptReason}</div>`:''}
+        <div class="rc-dt">Ingredientes</div><p>${r.ingredients}</p>
+        <div class="rc-dt">Preparación</div><p>${r.steps}</p>
+        ${r.note?`<div class="rc-dt">Por qué funciona</div><p>${r.note}</p>`:''}
+      </div>
+    </div>`;
   }).join('');
 }
 
-function toggleRecipe(id) {
-  openRecipe = openRecipe === id ? null : id;
-  renderRecipes();
-}
+function toggleRecipe(id){openRecipe=openRecipe===id?null:id;renderRecipes();}
 
 // ─── TRACKER ─────────────────────────────────────────────────────────────────
+const STATE_MAP={
+  optimo:{emoji:'😊',name:'Bien',cls:'s-optimo'},
+  gases:{emoji:'💨',name:'Gases',cls:'s-gases'},
+  blando:{emoji:'🟠',name:'Blando',cls:'s-blando'},
+  bolitas:{emoji:'🔴',name:'Bolitas',cls:'s-bolitas'},
+  null:{emoji:'·',name:'—',cls:''}
+};
 
-const DAYS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-
-function renderTracker() {
-  const grid = document.getElementById('tracker-grid');
-  const stateMap = {
-    optimo: { emoji: '😊', name: 'Bien', class: 'state-optimo' },
-    gases: { emoji: '💨', name: 'Gases', class: 'state-gases' },
-    blando: { emoji: '🟠', name: 'Blando', class: 'state-blando' },
-    bolitas: { emoji: '🔴', name: 'Bolitas', class: 'state-bolitas' },
-    null: { emoji: '·', name: '—', class: '' }
-  };
-  grid.innerHTML = DAYS.map((d, i) => {
-    const s = stateMap[trackerData[i]] || stateMap[null];
-    return `
-      <div class="day-cell ${s.class}" onclick="cycleTracker(${i})">
-        <div class="day-label">${d}</div>
-        <div class="day-emoji">${s.emoji}</div>
-        <div class="day-name">${s.name}</div>
-      </div>
-    `;
+function renderTracker(){
+  const grid=document.getElementById('tracker-grid');
+  // Show last 7 real dates
+  grid.innerHTML=trackerLog.map((entry,i)=>{
+    const s=STATE_MAP[entry.state]||STATE_MAP['null'];
+    const isToday=entry.date===today();
+    return`<div class="day-cell ${s.cls} ${isToday?'today-cell':''}" onclick="cycleTrackerDate('${entry.date}')">
+      <div class="dl" style="${isToday?'color:var(--teal);font-weight:700':''}">${shortDate(entry.date)}</div>
+      <div class="de">${s.emoji}</div>
+      <div class="dn">${s.name}</div>
+    </div>`;
   }).join('');
-
-  const legend = document.getElementById('tracker-legend');
-  legend.innerHTML = [
-    { c: '#16A34A', l: 'Óptimo' }, { c: '#F59E0B', l: 'Gases' },
-    { c: '#F97316', l: 'Blando' }, { c: '#E55A4E', l: 'Bolitas' }, { c: '#d1d5db', l: 'Sin registro' }
-  ].map(x => `<div class="legend-item"><div class="legend-dot" style="background:${x.c}"></div>${x.l}</div>`).join('');
-
+  document.getElementById('tracker-legend').innerHTML=[
+    {c:'#16A34A',l:'Óptimo'},{c:'#F59E0B',l:'Gases'},{c:'#F97316',l:'Blando'},{c:'#E55A4E',l:'Bolitas'},{c:'#d1d5db',l:'Sin dato'}
+  ].map(x=>`<div class="leg-item"><div class="leg-dot" style="background:${x.c}"></div>${x.l}</div>`).join('');
   updateTrackerInsight();
 }
 
-function cycleTracker(i) {
-  const order = [null, 'optimo', 'gases', 'blando', 'bolitas'];
-  const cur = order.indexOf(trackerData[i]);
-  trackerData[i] = order[(cur + 1) % order.length];
-  if (i === 6) { todayState = trackerData[i]; saveTodayState(trackerData[i]); renderHoy(); }
-  saveTracker();
+function cycleTrackerDate(date){
+  const order=[null,'optimo','gases','blando','bolitas'];
+  const entry=trackerLog.find(e=>e.date===date);
+  if(!entry)return;
+  const cur=order.indexOf(entry.state);
+  entry.state=order[(cur+1)%order.length];
+  saveTrackerLog();
+  if(date===today()){todayState=entry.state;saveTodayState(entry.state);renderHoy();}
   renderTracker();
 }
 
-function updateTrackerInsight() {
-  const filled = trackerData.filter(v => v !== null);
-  const ins = document.getElementById('tracker-insight');
-  if (filled.length < 3) { ins.innerHTML = '<p>Toca un día para registrar su estado. Necesitas al menos 3 para ver tu tendencia.</p>'; return; }
-  const total = trackerData.reduce((a, k) => {
-    if (!k) return a;
-    const s = STATES.find(x => x.key === k);
-    return a + (s ? s.score : 0);
-  }, 0);
-  const optimal = trackerData.filter(k => k === 'optimo').length;
-  const bad = trackerData.filter(k => k === 'blando' || k === 'bolitas').length;
-  let msg;
-  if (total >= 12) msg = '<strong>Semana muy buena.</strong> Intestino en modo rutina estable. Mantén el patrón de desayuno y los horarios.';
-  else if (total >= 6) msg = '<strong>Semana regular.</strong> Algún bache controlado. Revisa si hubo excesos acumulados — la tendencia importa más que el día aislado.';
-  else if (total >= 0) msg = '<strong>Semana de baches.</strong> Varios días irregulares. Activa un reset de 24-48h: comida simple, agua, sin alcohol.';
-  else msg = '<strong>Semana difícil.</strong> Patrón negativo. Prioriza reset digestivo y mira si hay factores que se repiten (alcohol, fritos, poco sueño, estrés).';
-  if (optimal >= 4) msg += ' Buena base — mayoría de días óptimos.';
-  if (bad >= 3) msg += ' <span style="color:#E55A4E">Tres o más días malos seguidos → consulta médico si se repite.</span>';
-  ins.innerHTML = `<p>${msg}</p>`;
+function getConsecutiveBadReal(){
+  // Count consecutive non-optimal days from today backwards through real dates
+  let count=0;
+  for(let i=trackerLog.length-1;i>=0;i--){
+    const s=trackerLog[i].state;
+    if(s&&s!=='optimo')count++;
+    else if(s==='optimo')break;
+    // null = no data = don't count but don't break streak
+  }
+  return count;
 }
 
-// init recipes
+function getDominantIssue(){
+  const recent=trackerLog.slice(-5).map(e=>e.state).filter(s=>s&&s!=='optimo');
+  if(!recent.length)return'irregularidad';
+  const freq={};recent.forEach(k=>freq[k]=(freq[k]||0)+1);
+  const dominant=Object.entries(freq).sort((a,b)=>b[1]-a[1])[0][0];
+  return{bolitas:'estreñimiento',gases:'gases',blando:'heces blandas'}[dominant]||dominant;
+}
+
+function updateTrackerInsight(){
+  const ins=document.getElementById('tracker-insight');
+  const filled=trackerLog.filter(e=>e.state!==null);
+  if(filled.length<2){ins.innerHTML='<p>Toca un día para registrar su estado.</p>';return;}
+
+  const consecutive=getConsecutiveBadReal();
+  const dominantIssue=getDominantIssue();
+  const bolitasCount=trackerLog.filter(e=>e.state==='bolitas').length;
+  const gasesCount=trackerLog.filter(e=>e.state==='gases').length;
+  const scores=trackerLog.map(e=>{if(!e.state)return 0;const s=STATES.find(x=>x.key===e.state);return s?s.score:0;});
+  const avg=scores.reduce((a,b)=>a+b,0)/Math.max(filled.length,1);
+
+  let msg='',checklist='';
+
+  if(consecutive>=4){
+    msg=`<strong>⚠️ ${consecutive} días consecutivos con ${dominantIssue}.</strong> Ya no es un episodio puntual — es un patrón instalado. El intestino necesita varias palancas a la vez, no solo una.`;
+    checklist=buildChecklist('severe',dominantIssue);
+  } else if(consecutive>=2){
+    msg=`<strong>${consecutive} días seguidos con ${dominantIssue}.</strong> El patrón empieza a instalarse. Activa el protocolo 48h completas.`;
+    checklist=buildChecklist('moderate',dominantIssue);
+  } else if(avg>=2){
+    msg='<strong>Semana buena.</strong> Mayoría de días sin problemas. Sigue con la rutina.';
+  } else if(avg>=0){
+    msg='<strong>Semana irregular.</strong> Alternancia de días buenos y malos. Busca qué cambia en los días malos.';
+  } else {
+    msg='<strong>Semana difícil.</strong> Revisa si hay factores que se repiten.';
+  }
+
+  if(bolitasCount>=3&&consecutive<4){
+    msg+=' <em>Varios días con bolitas esta semana — la hidratación y la grasa en crudo son las primeras palancas.</em>';
+  }
+  if(gasesCount>=3&&bolitasCount===0){
+    msg+=' <em>Patrón de gases frecuentes — mira qué alimentos se repiten en esos días.</em>';
+  }
+
+  ins.innerHTML=`<p style="font-size:13.5px;line-height:1.6">${msg}</p>${checklist}`;
+}
+
+function buildChecklist(severity,issue){
+  const items=issue==='estreñimiento'?[
+    {done:false,text:'Vaso de 300ml de agua nada más levantarte (antes del café)'},
+    {done:false,text:'Café solo en ayunas para activar el reflejo gastrocólico'},
+    {done:false,text:'AOVE o aguacate en cada comida de hoy (lubricación mecánica)'},
+    {done:false,text:'Caminar 20-30 min después de comer'},
+    {done:false,text:'Sentarte en el baño 10-15 min por la mañana aunque no tengas ganas'},
+    {done:false,text:'Avena cocida en el desayuno (fibra soluble, no seca)'},
+    ...(severity==='severe'?[
+      {done:false,text:'Reducir pan blanco hoy — cambiar por centeno o integral'},
+      {done:false,text:'Si llevas más de 5 días: considera visita médica'}
+    ]:[])
+  ]:issue==='gases'?[
+    {done:false,text:'Sin legumbres, brócoli, coliflor ni cebolla cruda hoy'},
+    {done:false,text:'Sin cerveza ni refrescos con gas'},
+    {done:false,text:'Infusión de hinojo o menta después de comer'},
+    {done:false,text:'Comidas pequeñas, masticar despacio'},
+    {done:false,text:'Mantener el yogur griego (probióticos)'}
+  ]:[
+    {done:false,text:'Arroz blanco, pasta simple o sopa hoy — sin integral'},
+    {done:false,text:'Sin café, sin picante, sin alcohol'},
+    {done:false,text:'Agua sola o infusión suave (manzanilla)'},
+    {done:false,text:'Comidas pequeñas y calientes'}
+  ];
+
+  const id='checklist-'+Date.now();
+  // Store checklist state in memory
+  _checklists=_checklists||{};
+  if(!_checklists[issue])_checklists[issue]=items.map(()=>false);
+  const checks=_checklists[issue];
+
+  return`<div style="margin-top:12px;background:var(--soft);border-radius:var(--rsm);padding:12px 14px;border:0.5px solid var(--border)">
+    <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Checklist para salir del ${issue}</div>
+    ${items.map((item,i)=>`
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:5px 0;cursor:pointer;border-bottom:0.5px solid var(--border);font-size:13px;line-height:1.4;color:${checks[i]?'var(--light)':'var(--text)'}">
+        <input type="checkbox" ${checks[i]?'checked':''} onchange="toggleCheck('${issue}',${i},this)" style="margin-top:2px;accent-color:var(--teal);flex-shrink:0">
+        <span style="${checks[i]?'text-decoration:line-through':''}">${item.text}</span>
+      </label>`).join('')}
+  </div>`;
+}
+
+function toggleCheck(issue,idx,el){
+  _checklists=_checklists||{};
+  if(!_checklists[issue])return;
+  _checklists[issue][idx]=el.checked;
+  // re-render tracker insight without losing state
+  updateTrackerInsight();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+todayState=loadTodayState();
+renderHoy();
+renderTracker();
+renderMealFilter();
 renderRecipes();
+renderComidas();
 </script>
 </body>
 </html>
