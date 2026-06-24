@@ -409,17 +409,54 @@ const PROTOCOLS={
 };
 
 // Meal categories with digestive impact
-const MEAL_CATS=[
-  {key:'saludable',label:'🥗 Saludable',desc:'Yogur, avena, pasta simple, pollo, verdura cocida',impact:'verde',impactLabel:'✓ Favorece',score:2},
-  {key:'normal',label:'🍽️ Normal',desc:'Arroz, pasta, sandwich, huevos, comida casera estándar',impact:'verde',impactLabel:'✓ Neutro',score:1},
-  {key:'fuera',label:'🏪 Comida fuera',desc:'Restaurante, menú del día, comida de trabajo',impact:'amarillo',impactLabel:'~ Variable',score:0},
-  {key:'exceso_leve',label:'🍺 Exceso leve',desc:'1-2 cervezas, bravas, patatas fritas, frankfurt, tapas',impact:'amarillo',impactLabel:'~ Gases posibles',score:-0.5},
-  {key:'procesada',label:'🍕 Procesada / rápida',desc:'Pizza, hamburguesa, McDonald\'s, precocinados',impact:'rojo',impactLabel:'⚠ Ralentiza tránsito',score:-1},
-  {key:'exceso',label:'🥃 Exceso real',desc:'Alcohol fuerte, fritos+cerveza toda la noche, atracón',impact:'rojo',impactLabel:'✗ Disrumpe directo',score:-2},
-  {key:'vacio',label:'⏭️ Me la salté',desc:'No comí en ese momento',impact:'amarillo',impactLabel:'~ Saltada',score:0}
-];
+const MEAL_SLOTS=['Desayuno','Comida','Merienda','Cena'];
 
-const MEAL_SLOTS=['Desayuno','Almuerzo','Comida','Merienda','Cena'];
+// Per-slot categories — different options make sense for each moment
+const MEAL_CATS_BY_SLOT={
+  Desayuno:[
+    {key:'base',label:'✅ Base completo',desc:'Yogur griego + avena (tu patrón óptimo)',impact:'verde',impactLabel:'✓ Óptimo',score:2},
+    {key:'ligero',label:'🍞 Ligero / tostada',desc:'Pan, fruta, café solo, algo rápido',impact:'verde',impactLabel:'✓ Suficiente',score:1},
+    {key:'sin_desayuno',label:'⏭️ Sin desayuno',desc:'No desayuné o solo café',impact:'amarillo',impactLabel:'~ Sin señal de activación',score:-0.5},
+    {key:'exceso_dulce',label:'🧁 Exceso dulce',desc:'Bollería, azúcar alto, ultraprocesado',impact:'rojo',impactLabel:'⚠ Pico glucosa',score:-1},
+  ],
+  Comida:[
+    {key:'equilibrada',label:'✅ Equilibrada',desc:'Proteína + carbohidrato + grasa buena (tus recetas)',impact:'verde',impactLabel:'✓ Ideal',score:2},
+    {key:'normal',label:'🍽️ Normal / casera',desc:'Arroz, pasta, menú estándar. Correcto.',impact:'verde',impactLabel:'✓ Neutro',score:1},
+    {key:'fuera_ok',label:'🏪 Fuera (correcta)',desc:'Restaurante con comida razonable, ensalada, menú',impact:'amarillo',impactLabel:'~ Variable',score:0},
+    {key:'pizza_casera',label:'🍕 Pizza / pasta casera',desc:'Hecha en casa con ingredientes normales',impact:'amarillo',impactLabel:'~ OK ocasional',score:0},
+    {key:'fast_food',label:'🍔 Fast food / delivery',desc:'McDonald\'s, telepizza, kebab, delivery ultraprocesado',impact:'rojo',impactLabel:'⚠ Ralentiza tránsito',score:-1},
+    {key:'exceso',label:'🥃 Exceso / atracón',desc:'Demasiada cantidad, muy grasoso, alcohol en comida',impact:'rojo',impactLabel:'✗ Disrumpe directo',score:-2},
+    {key:'saltada',label:'⏭️ No comí',desc:'Me salté la comida',impact:'amarillo',impactLabel:'~ Sin activación colon',score:-0.5},
+  ],
+  Merienda:[
+    {key:'buena',label:'✅ Buena',desc:'Frutos secos, yogur, fruta, almejones, tosta integral',impact:'verde',impactLabel:'✓ Bien',score:1},
+    {key:'normal_m',label:'🍪 Normal',desc:'Galletas, algo de bollería ligera, barrita',impact:'amarillo',impactLabel:'~ Neutro',score:0},
+    {key:'sin_merienda',label:'⏭️ Sin merienda',desc:'No meriendan normalmente — totalmente válido',impact:'verde',impactLabel:'✓ Normal sin ella',score:0},
+    {key:'snack_malo',label:'🍬 Snack ultraprocesado',desc:'Patatas fritas de bolsa, chucherías, dulce industrial',impact:'rojo',impactLabel:'⚠ Azúcar/aditivos',score:-1},
+  ],
+  Cena:[
+    {key:'ligera_cena',label:'✅ Ligera y equilibrada',desc:'Tosta, sopa, huevos, ensalada con proteína',impact:'verde',impactLabel:'✓ Ideal para la noche',score:2},
+    {key:'normal_cena',label:'🍽️ Completa / normal',desc:'Pasta, arroz, pollo, cena casera completa',impact:'verde',impactLabel:'✓ Correcto',score:1},
+    {key:'fuera_cena',label:'🏪 Fuera / restaurante',desc:'Cena en restaurante, menú razonable',impact:'amarillo',impactLabel:'~ Variable',score:0},
+    {key:'exceso_leve',label:'🍺 Exceso leve',desc:'1-2 cervezas, bravas, tapas, frankfurt',impact:'amarillo',impactLabel:'~ Gases en 4-6h',score:-0.5},
+    {key:'heavy',label:'🍕 Pesada / fast food',desc:'Pizza delivery, kebab, fritos, mucho alcohol',impact:'rojo',impactLabel:'⚠ Impacto mañana',score:-1},
+    {key:'sin_cena',label:'⏭️ Sin cena',desc:'No cené',impact:'amarillo',impactLabel:'~ Sin señal nocturna',score:0},
+  ]
+};
+
+// Flat list for analysis (all unique keys with scores)
+const MEAL_SCORE={
+  base:2,ligero:1,sin_desayuno:-0.5,exceso_dulce:-1,
+  equilibrada:2,normal:1,fuera_ok:0,pizza_casera:0,fast_food:-1,exceso:-2,saltada:-0.5,
+  buena:1,normal_m:0,sin_merienda:0,snack_malo:-1,
+  ligera_cena:2,normal_cena:1,fuera_cena:0,exceso_leve:-0.5,heavy:-1,sin_cena:0
+};
+const MEAL_IMPACT={
+  base:'verde',ligero:'verde',sin_desayuno:'amarillo',exceso_dulce:'rojo',
+  equilibrada:'verde',normal:'verde',fuera_ok:'amarillo',pizza_casera:'amarillo',fast_food:'rojo',exceso:'rojo',saltada:'amarillo',
+  buena:'verde',normal_m:'amarillo',sin_merienda:'verde',snack_malo:'rojo',
+  ligera_cena:'verde',normal_cena:'verde',fuera_cena:'amarillo',exceso_leve:'amarillo',heavy:'rojo',sin_cena:'amarillo'
+};
 
 // All recipes from the library
 const RECIPES=[
@@ -648,13 +685,15 @@ function renderComidas(){
 function renderMealSlots(containerId,meals,day){
   const el=document.getElementById(containerId);
   el.innerHTML=MEAL_SLOTS.map(slot=>{
-    const cat=meals[slot];
-    const catData=cat?MEAL_CATS.find(c=>c.key===cat):null;
-    return`<div class="meal-slot ${catData?catData.impact:''} ${catData?'filled':''}" onclick="openMealModal('${slot}','${day}')">
+    const key=meals[slot];
+    const cats=MEAL_CATS_BY_SLOT[slot]||[];
+    const catData=key?cats.find(c=>c.key===key):null;
+    const impact=key?MEAL_IMPACT[key]||'amarillo':'';
+    return`<div class="meal-slot ${impact} ${catData?'filled':''}" onclick="openMealModal('${slot}','${day}')">
       <div class="meal-slot-label">${slot}</div>
       ${catData
         ?`<div class="meal-slot-content">${catData.label.split(' ').slice(1).join(' ')}</div>
-           <div class="meal-impact impact-${catData.impact}">${catData.impactLabel}</div>`
+           <div class="meal-impact impact-${impact}">${catData.impactLabel}</div>`
         :`<div class="meal-slot-empty">+ Añadir</div>`}
     </div>`;
   }).join('');
@@ -668,13 +707,16 @@ function renderMealInsight(){
     return;
   }
 
-  const bad=allMeals.filter(k=>k==='exceso'||k==='procesada').length;
+  // Use MEAL_SCORE for unified scoring across all slots
+  const scores=allMeals.map(k=>MEAL_SCORE[k]??0);
+  const totalScore=scores.reduce((a,b)=>a+b,0);
+  const bad=allMeals.filter(k=>['fast_food','exceso','heavy','exceso_dulce','snack_malo'].includes(k)).length;
   const badLeve=allMeals.filter(k=>k==='exceso_leve').length;
-  const fuera=allMeals.filter(k=>k==='fuera').length;
-  const good=allMeals.filter(k=>k==='saludable'||k==='normal').length;
-  const saltadas=allMeals.filter(k=>k==='vacio').length;
+  const fuera=allMeals.filter(k=>['fuera_ok','fuera_cena','pizza_casera'].includes(k)).length;
+  const good=allMeals.filter(k=>MEAL_SCORE[k]>=1).length;
+  const saltadas=allMeals.filter(k=>['sin_desayuno','saltada','sin_cena'].includes(k)).length;
   const todayVals=Object.values(todayMeals);
-  const todayBad=todayVals.filter(k=>k==='exceso'||k==='procesada').length;
+  const todayBad=todayVals.filter(k=>['fast_food','exceso','heavy','exceso_dulce'].includes(k)).length;
 
   // Dominant pattern
   let pattern='';
@@ -736,10 +778,11 @@ function renderMealInsight(){
 
 function openMealModal(slot,day){
   modalSlot=slot;modalDay=day;
-  document.getElementById('mm-title').textContent=`${slot}`;
+  document.getElementById('mm-title').textContent=slot;
   document.getElementById('mm-sub').textContent=day==='today'?`Hoy · ${shortDate(today())}`:`Ayer · ${shortDate(dateStr(1))}`;
   const current=day==='today'?todayMeals[slot]:yesterdayMeals[slot];
-  document.getElementById('mm-opts').innerHTML=MEAL_CATS.map(c=>`
+  const cats=MEAL_CATS_BY_SLOT[slot]||[];
+  document.getElementById('mm-opts').innerHTML=cats.map(c=>`
     <div class="mopt ${current===c.key?'sel':''}" onclick="selectMeal('${c.key}')">
       <span class="mopt-icon">${c.label.split(' ')[0]}</span>
       <div>
