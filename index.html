@@ -186,42 +186,114 @@ html,body{height:100%;background:var(--soft);font-family:-apple-system,BlinkMacS
   <div class="sub mt10">Lo esencial sin dieta.</div>
 
   <div class="g-section">
-    <div class="g-title">🩺 Señales de alarma — cuándo ir al médico</div>
-    <table class="g-table">
-      <tr><th>Señal</th><th>Qué significa</th><th>Qué hacer</th></tr>
-      <tr><td style="font-size:16px">🔴</td><td style="font-size:13px"><strong>Sangre en las heces</strong><br>Roja brillante o negra</td><td style="font-size:13px">Médico esta semana. No esperar.</td></tr>
-      <tr><td style="font-size:16px">⚠️</td><td style="font-size:13px"><strong>Más de 7 días sin defecar</strong><br>Con protocolo activo</td><td style="font-size:13px">Médico. Puede necesitar laxante supervisado.</td></tr>
-      <tr><td style="font-size:16px">⚠️</td><td style="font-size:13px"><strong>Dolor abdominal fuerte</strong><br>No gas sino dolor real</td><td style="font-size:13px">Urgencias si es intenso. Médico si es recurrente.</td></tr>
-      <tr><td style="font-size:16px">⚠️</td><td style="font-size:13px"><strong>Pérdida de peso sin explicación</strong><br>Junto a cambio de hábito intestinal</td><td style="font-size:13px">Médico. Siempre investigar.</td></tr>
-      <tr><td style="font-size:16px">⚠️</td><td style="font-size:13px"><strong>Diarrea más de 5 días seguidos</strong><br>Sin mejora con reset</td><td style="font-size:13px">Médico. Riesgo de deshidratación.</td></tr>
-      <tr><td style="font-size:16px">ℹ️</td><td style="font-size:13px"><strong>Estreñimiento funcional recurrente</strong><br>Meses de bolitas sin solución</td><td style="font-size:13px">Médico para descartar causa orgánica. Probablemente SII.</td></tr>
-    </table>
-    <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">Los episodios de 2-4 días de bolitas o gases no son señales de alarma — son el patrón funcional que ya conoces. Las señales de arriba son las excepciones.</div>
+    <div class="g-title">📊 Escala Bristol — identifica tu tipo</div>
+    <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:0.5px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:#DC2626;width:16px;flex-shrink:0">1</div>
+        <div style="font-size:18px;flex-shrink:0">⚫⚫⚫</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">Bolitas duras separadas</div><div style="font-size:11px;color:var(--muted)">Como nueces. Muy estreñido.</div></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#DC2626;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:0.5px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:#EA580C;width:16px;flex-shrink:0">2</div>
+        <div style="font-size:18px;flex-shrink:0">🌑🌑</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">Salchicha de bolitas</div><div style="font-size:11px;color:var(--muted)">Grumosa y dura. Estreñido.</div></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#EA580C;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:0.5px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:#CA8A04;width:16px;flex-shrink:0">3</div>
+        <div style="font-size:18px;flex-shrink:0">🥕</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">Salchicha con grietas</div><div style="font-size:11px;color:var(--muted)">Normal-bajo. Algo seco.</div></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#CA8A04;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:0.5px solid var(--border);background:#DCFCE7">
+        <div style="font-size:11px;font-weight:700;color:#16A34A;width:16px;flex-shrink:0">4</div>
+        <div style="font-size:18px;flex-shrink:0">🍌</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">Salchicha lisa y suave <span style="font-size:10px;background:#16A34A;color:white;padding:1px 6px;border-radius:4px;font-weight:700">OBJETIVO</span></div><div style="font-size:11px;color:var(--muted)">Ideal. El objetivo diario.</div></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#16A34A;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:0.5px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:#0EA5E9;width:16px;flex-shrink:0">5</div>
+        <div style="font-size:18px;flex-shrink:0">☁️</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">Trozos blandos</div><div style="font-size:11px;color:var(--muted)">Límite inferior normal.</div></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#0EA5E9;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:0.5px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:#7C3AED;width:16px;flex-shrink:0">6</div>
+        <div style="font-size:18px;flex-shrink:0">💧</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">Esponjoso y deshilachado</div><div style="font-size:11px;color:var(--muted)">Heces blandas. Diarrea leve.</div></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#7C3AED;flex-shrink:0"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px">
+        <div style="font-size:11px;font-weight:700;color:#BE185D;width:16px;flex-shrink:0">7</div>
+        <div style="font-size:18px;flex-shrink:0">🌊</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">Líquido, sin sólidos</div><div style="font-size:11px;color:var(--muted)">Diarrea. Atención.</div></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#BE185D;flex-shrink:0"></div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">El 1-2 es lo que registras como "bolitas". El 5-6 es "heces blandas". Vives en el 3-4 cuando todo va bien. El objetivo es el 4.</div>
   </div>
 
   <div class="g-section">
-    <div class="g-title">📊 Escala Bristol — identifica tu tipo</div>
-    <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
-      ${[
-        {num:1,emoji:'⚫⚫⚫',name:'Bolitas duras separadas',detail:'Como nueces. Muy estreñido.',color:'#DC2626',yours:false},
-        {num:2,emoji:'🌑🌑',name:'Salchicha de bolitas',detail:'Grumosa y dura. Estreñido.',color:'#EA580C',yours:false},
-        {num:3,emoji:'🥕',name:'Salchicha con grietas',detail:'Normal-bajo. Algo seco.',color:'#CA8A04',yours:false},
-        {num:4,emoji:'🍌',name:'Salchicha lisa y suave',detail:'Ideal. El objetivo.',color:'#16A34A',yours:true},
-        {num:5,emoji:'☁️',name:'Trozos blandos',detail:'Límite inferior normal.',color:'#0EA5E9',yours:false},
-        {num:6,emoji:'💧',name:'Esponjoso y deshilachado',detail:'Heces blandas. Diarrea leve.',color:'#7C3AED',yours:false},
-        {num:7,emoji:'🌊',name:'Líquido, sin sólidos',detail:'Diarrea. Atención.',color:'#BE185D',yours:false},
-      ].map(b=>`
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:0.5px solid var(--border);${b.yours?'background:#DCFCE7':''}">
-          <div style="font-size:11px;font-weight:700;color:${b.color};width:16px;flex-shrink:0">${b.num}</div>
-          <div style="font-size:18px;flex-shrink:0">${b.emoji}</div>
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:600;color:var(--text)">${b.name}${b.yours?' <span style="font-size:10px;background:#DCFCE7;color:#16A34A;padding:1px 6px;border-radius:4px;font-weight:700">OBJETIVO</span>':''}</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:1px">${b.detail}</div>
-          </div>
-          <div style="width:10px;height:10px;border-radius:50%;background:${b.color};flex-shrink:0"></div>
-        </div>`).join('')}
+    <div class="g-title">🧠 Por qué pasa cada estado</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+
+      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="padding:12px 14px;background:#FEE2E0;border-bottom:0.5px solid var(--border)">
+          <div style="font-size:13px;font-weight:700;color:#E55A4E">🔴 Bolitas / estreñimiento</div>
+        </div>
+        <div style="padding:12px 14px;font-size:13px;color:var(--text);line-height:1.7">
+          <strong>Causas más frecuentes:</strong><br>
+          • Poca agua — el colon absorbe el agua del bolo fecal. Sin hidratación, las heces se endurecen.<br>
+          • Poca grasa buena — AOVE y aguacate lubrican mecánicamente el tránsito. Sin ellos, el bolo se seca.<br>
+          • Comidas irregulares o saltadas — cada comida activa el reflejo gastrocólico. Sin señales, el colon no se mueve.<br>
+          • Fibra insuficiente o del tipo equivocado — la fibra soluble (avena, legumbre) retiene agua y ablanda. La fibra insoluble sola sin agua puede estreñir más.<br>
+          • Poco movimiento — caminar activa el peristaltismo directamente.<br>
+          • Estrés — el eje intestino-cerebro es real. El cortisol enlentece el tránsito.
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="padding:12px 14px;background:#FFF7ED;border-bottom:0.5px solid var(--border)">
+          <div style="font-size:13px;font-weight:700;color:#F97316">🟠 Heces blandas</div>
+        </div>
+        <div style="padding:12px 14px;font-size:13px;color:var(--text);line-height:1.7">
+          <strong>Causas más frecuentes:</strong><br>
+          • Alcohol — irrita la mucosa intestinal y acelera el peristaltismo en 6-12h.<br>
+          • Picante — la capsaicina activa los receptores de dolor del colon. Efecto en 4-8h.<br>
+          • Fritos y grasa saturada en exceso — el colon responde vaciando rápido ante sobrecarga de grasa.<br>
+          • Mucha cantidad en una sola comida — el reflejo gastrocólico se sobreactiva.<br>
+          • Café en exceso — estimula las contracciones colónicas. Normal uno, exceso acelera.<br>
+          • Cambio brusco de dieta — el microbioma necesita adaptarse. Nuevo alimento → reacción.
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="padding:12px 14px;background:#FEF3C7;border-bottom:0.5px solid var(--border)">
+          <div style="font-size:13px;font-weight:700;color:#F59E0B">💨 Gases frecuentes u olorosos</div>
+        </div>
+        <div style="padding:12px 14px;font-size:13px;color:var(--text);line-height:1.7">
+          <strong>Causas más frecuentes:</strong><br>
+          • Legumbres, brócoli, coliflor, cebolla cruda — fermentan en el colon produciendo gas. Normal en todos, más marcado en intestinos sensibles.<br>
+          • Cerveza y bebidas con gas — CO₂ directo + el alcohol fermenta.<br>
+          • Lácteo + grasa juntos en exceso — puede fermentar si hay algo de intolerancia latente.<br>
+          • Comer rápido o con ansiedad — tragas aire sin notarlo (aerofagia).<br>
+          • Microbiota alterada — después de excesos, antibióticos o estrés prolongado, las bacterias beneficiosas bajan y las fermentadoras suben.<br>
+          • Los gases olorosos son señal de fermentación bacteriana. Los no olorosos suelen ser aire tragado.
+        </div>
+      </div>
+
     </div>
-    <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">Bristol 3-4 es el rango óptimo. El 1-2 es lo que registras como "bolitas". El 5-6 es "heces blandas". El objetivo es vivir en el 4.</div>
+  </div>
+
+
+    <table class="g-table">
+      <tr><th></th><th>Estado</th><th>Come hoy</th><th>Evita</th></tr>
+      <tr><td>✅</td><td><strong>Normal</strong><br>Bristol 3-4</td><td>Lo que quieras. No experimentes.</td><td>Cambios bruscos innecesarios</td></tr>
+      <tr><td>🟡</td><td><strong>Bolitas</strong><br>Bristol 1-2</td><td>Agua en ayunas · Avena · AOVE · Aguacate</td><td>Pan seco · Mucha proteína sola · Poca grasa</td></tr>
+      <tr><td>🟠</td><td><strong>Blando</strong><br>Bristol 5-6</td><td>Arroz blanco · Pasta simple · Pollo · Sopa</td><td>Integral · Aguacate · Hummus · Fritos</td></tr>
+      <tr><td>💨</td><td><strong>Gases</strong></td><td>Comida caliente · Verdura cocida · Hinojo</td><td>Cerveza · Legumbres · Crucíferas · Lactosa+grasa</td></tr>
+    </table>
   </div>
 
   <div class="g-section">
