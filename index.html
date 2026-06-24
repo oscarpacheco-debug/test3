@@ -438,6 +438,7 @@ const MEAL_CATS_BY_SLOT={
     {key:'ligera_cena',label:'✅ Ligera y equilibrada',desc:'Tosta, sopa, huevos, ensalada con proteína',impact:'verde',impactLabel:'✓ Ideal para la noche',score:2},
     {key:'normal_cena',label:'🍽️ Completa / normal',desc:'Pasta, arroz, pollo, cena casera completa',impact:'verde',impactLabel:'✓ Correcto',score:1},
     {key:'fuera_cena',label:'🏪 Fuera / restaurante',desc:'Cena en restaurante, menú razonable',impact:'amarillo',impactLabel:'~ Variable',score:0},
+    {key:'pizza_casera_cena',label:'🍕 Pizza / pasta casera',desc:'Hecha en casa con ingredientes normales',impact:'amarillo',impactLabel:'~ OK ocasional',score:0},
     {key:'exceso_leve',label:'🍺 Exceso leve',desc:'1-2 cervezas, bravas, tapas, frankfurt',impact:'amarillo',impactLabel:'~ Gases en 4-6h',score:-0.5},
     {key:'heavy',label:'🍕 Pesada / fast food',desc:'Pizza delivery, kebab, fritos, mucho alcohol',impact:'rojo',impactLabel:'⚠ Impacto mañana',score:-1},
     {key:'sin_cena',label:'⏭️ Sin cena',desc:'No cené',impact:'amarillo',impactLabel:'~ Sin señal nocturna',score:0},
@@ -449,13 +450,13 @@ const MEAL_SCORE={
   base:2,ligero:1,sin_desayuno:-0.5,exceso_dulce:-1,
   equilibrada:2,normal:1,fuera_ok:0,pizza_casera:0,fast_food:-1,exceso:-2,saltada:-0.5,
   buena:1,normal_m:0,sin_merienda:0,snack_malo:-1,
-  ligera_cena:2,normal_cena:1,fuera_cena:0,exceso_leve:-0.5,heavy:-1,sin_cena:0
+  ligera_cena:2,normal_cena:1,fuera_cena:0,pizza_casera_cena:0,exceso_leve:-0.5,heavy:-1,sin_cena:0
 };
 const MEAL_IMPACT={
   base:'verde',ligero:'verde',sin_desayuno:'amarillo',exceso_dulce:'rojo',
   equilibrada:'verde',normal:'verde',fuera_ok:'amarillo',pizza_casera:'amarillo',fast_food:'rojo',exceso:'rojo',saltada:'amarillo',
   buena:'verde',normal_m:'amarillo',sin_merienda:'verde',snack_malo:'rojo',
-  ligera_cena:'verde',normal_cena:'verde',fuera_cena:'amarillo',exceso_leve:'amarillo',heavy:'rojo',sin_cena:'amarillo'
+  ligera_cena:'verde',normal_cena:'verde',fuera_cena:'amarillo',pizza_casera_cena:'amarillo',exceso_leve:'amarillo',heavy:'rojo',sin_cena:'amarillo'
 };
 
 // All recipes from the library
